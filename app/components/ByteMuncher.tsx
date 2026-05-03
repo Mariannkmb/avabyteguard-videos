@@ -9,21 +9,29 @@ type Position = {
   y: number;
 };
 
-const initialDots: Position[] = Array.from({ length: 35 }, (_, i) => ({
+const initialDots: Position[] = Array.from({ length: 45 }, (_, i) => ({
   x: (i * 5 + 2) % size,
   y: (i * 7 + 3) % size,
 }));
 
+const initialBugs: Position[] = [
+  { x: 10, y: 10 },
+  { x: 1, y: 10 },
+  { x: 10, y: 1 },
+  { x: 6, y: 6 },
+];
+
 export default function ByteMuncher() {
   const [player, setPlayer] = useState<Position>({ x: 1, y: 1 });
-  const [ghost, setGhost] = useState<Position>({ x: 10, y: 10 });
+  const [bugs, setBugs] = useState<Position[]>(initialBugs);
   const [dots, setDots] = useState(initialDots);
   const [score, setScore] = useState(0);
   const [gameOver, setGameOver] = useState(false);
+  const [winner, setWinner] = useState(false);
 
   useEffect(() => {
     function handleKeyDown(e: KeyboardEvent) {
-      if (gameOver) return;
+      if (gameOver || winner) return;
 
       setPlayer((current) => {
         const next = { ...current };
@@ -33,16 +41,24 @@ export default function ByteMuncher() {
         if (e.key === "ArrowLeft") next.x = Math.max(0, current.x - 1);
         if (e.key === "ArrowRight") next.x = Math.min(size - 1, current.x + 1);
 
+        if (bugs.some((bug) => bug.x === next.x && bug.y === next.y)) {
+          setGameOver(true);
+        }
+
         setDots((currentDots) => {
-          const ateDot = currentDots.some(
-            (dot) => dot.x === next.x && dot.y === next.y
-          );
-
-          if (ateDot) setScore((s) => s + 10);
-
-          return currentDots.filter(
+          const newDots = currentDots.filter(
             (dot) => !(dot.x === next.x && dot.y === next.y)
           );
+
+          if (newDots.length < currentDots.length) {
+            setScore((s) => s + 10);
+          }
+
+          if (newDots.length === 0) {
+            setWinner(true);
+          }
+
+          return newDots;
         });
 
         return next;
@@ -51,37 +67,47 @@ export default function ByteMuncher() {
 
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [gameOver]);
+  }, [bugs, gameOver, winner]);
 
   useEffect(() => {
-    if (gameOver) return;
+    if (gameOver || winner) return;
 
     const interval = setInterval(() => {
-      setGhost((current) => {
-        const next = { ...current };
+      setBugs((currentBugs) =>
+        currentBugs.map((bug, index) => {
+          const next = { ...bug };
 
-        if (player.x > current.x) next.x += 1;
-        else if (player.x < current.x) next.x -= 1;
-        else if (player.y > current.y) next.y += 1;
-        else if (player.y < current.y) next.y -= 1;
+          if (index % 2 === 0) {
+            if (player.x > bug.x) next.x += 1;
+            else if (player.x < bug.x) next.x -= 1;
+            else if (player.y > bug.y) next.y += 1;
+            else if (player.y < bug.y) next.y -= 1;
+          } else {
+            if (player.y > bug.y) next.y += 1;
+            else if (player.y < bug.y) next.y -= 1;
+            else if (player.x > bug.x) next.x += 1;
+            else if (player.x < bug.x) next.x -= 1;
+          }
 
-        if (next.x === player.x && next.y === player.y) {
-          setGameOver(true);
-        }
+          if (next.x === player.x && next.y === player.y) {
+            setGameOver(true);
+          }
 
-        return next;
-      });
-    }, 700);
+          return next;
+        })
+      );
+    }, 650);
 
     return () => clearInterval(interval);
-  }, [player, gameOver]);
+  }, [player, gameOver, winner]);
 
   function restartGame() {
     setPlayer({ x: 1, y: 1 });
-    setGhost({ x: 10, y: 10 });
+    setBugs(initialBugs);
     setDots(initialDots);
     setScore(0);
     setGameOver(false);
+    setWinner(false);
   }
 
   return (
@@ -91,25 +117,29 @@ export default function ByteMuncher() {
       </h2>
 
       <p className="mb-4 text-gray-300">
-        Use the arrow keys to collect bytes and avoid the bug.
+        Use the arrow keys to collect all bytes and avoid the bugs.
       </p>
 
       <div className="mb-4 flex items-center gap-4">
         <p className="font-bold">Score: {score}</p>
 
-        {gameOver && (
-          <button
-            onClick={restartGame}
-            className="rounded bg-red-600 px-4 py-2 font-bold hover:bg-red-700"
-          >
-            Restart
-          </button>
-        )}
+        <button
+          onClick={restartGame}
+          className="rounded bg-red-600 px-4 py-2 font-bold hover:bg-red-700"
+        >
+          Restart
+        </button>
       </div>
 
       {gameOver && (
-        <p className="mb-4 text-red-400 font-bold">
-          Game Over — the bug caught you!
+        <p className="mb-4 font-bold text-red-400">
+          Game Over — the bugs caught you!
+        </p>
+      )}
+
+      {winner && (
+        <p className="mb-4 rounded bg-green-600 px-4 py-3 text-xl font-black">
+          Winner!!
         </p>
       )}
 
@@ -122,7 +152,7 @@ export default function ByteMuncher() {
           const y = Math.floor(index / size);
 
           const isPlayer = player.x === x && player.y === y;
-          const isGhost = ghost.x === x && ghost.y === y;
+          const isBug = bugs.some((bug) => bug.x === x && bug.y === y);
           const hasDot = dots.some((dot) => dot.x === x && dot.y === y);
 
           return (
@@ -130,7 +160,7 @@ export default function ByteMuncher() {
               key={index}
               className="flex h-8 w-8 items-center justify-center rounded bg-zinc-800 text-lg"
             >
-              {isPlayer ? "🛡️" : isGhost ? "🐞" : hasDot ? "•" : ""}
+              {isPlayer ? "🛡️" : isBug ? "🐞" : hasDot ? "•" : ""}
             </div>
           );
         })}
