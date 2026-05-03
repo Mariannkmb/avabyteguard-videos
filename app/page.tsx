@@ -41,7 +41,7 @@ export default function Home() {
         <div className="absolute inset-0 bg-gradient-to-r from-black via-black/80 to-transparent" />
 
         <nav className="relative z-10 flex items-center gap-8 px-8 py-6">
-          <h1 className="text-3xl font-black text-red-600">AVABYTEGUARD</h1>
+          <h1 className="text-3xl font-black text-red-600">AVA BYTEGUARD</h1>
 
           <a href="/" className="text-sm text-gray-300 hover:text-white">
             Home
