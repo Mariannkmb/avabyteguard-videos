@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 const size = 14;
 
@@ -30,6 +30,8 @@ const viruses: Position[] = [
 ];
 
 export default function ByteMuncher() {
+  const touchStart = useRef<Position | null>(null);
+
   const [gameOpen, setGameOpen] = useState(false);
   const [player, setPlayer] = useState<Position>({ x: 1, y: 1 });
   const [bugs, setBugs] = useState<Position[]>(initialBugs);
@@ -84,13 +86,8 @@ export default function ByteMuncher() {
       setDots((currentDots) => {
         const newDots = currentDots.filter((dot) => !isSame(dot, next));
 
-        if (newDots.length < currentDots.length) {
-          setScore((s) => s + 10);
-        }
-
-        if (newDots.length === 0) {
-          setWinner(true);
-        }
+        if (newDots.length < currentDots.length) setScore((s) => s + 10);
+        if (newDots.length === 0) setWinner(true);
 
         return newDots;
       });
@@ -99,28 +96,33 @@ export default function ByteMuncher() {
     });
   }
 
-  function handleBoardTap(target: Position) {
-    if (!gameStarted || gameOver || winner) return;
+  function handleTouchStart(e: React.TouchEvent<HTMLDivElement>) {
+    const touch = e.touches[0];
+    touchStart.current = { x: touch.clientX, y: touch.clientY };
+  }
 
-    const dx = target.x - player.x;
-    const dy = target.y - player.y;
+  function handleTouchEnd(e: React.TouchEvent<HTMLDivElement>) {
+    if (!touchStart.current) return;
 
-    if (dx === 0 && dy === 0) return;
+    const touch = e.changedTouches[0];
+    const dx = touch.clientX - touchStart.current.x;
+    const dy = touch.clientY - touchStart.current.y;
+
+    const minSwipe = 20;
+
+    if (Math.abs(dx) < minSwipe && Math.abs(dy) < minSwipe) return;
 
     if (Math.abs(dx) > Math.abs(dy)) {
       movePlayer(dx > 0 ? "right" : "left");
     } else {
       movePlayer(dy > 0 ? "down" : "up");
     }
+
+    touchStart.current = null;
   }
 
   useEffect(() => {
-    if (gameOpen) {
-      document.body.style.overflow = "hidden";
-    } else {
-      document.body.style.overflow = "";
-    }
-
+    document.body.style.overflow = gameOpen ? "hidden" : "";
     return () => {
       document.body.style.overflow = "";
     };
@@ -162,10 +164,7 @@ export default function ByteMuncher() {
           }
 
           if (viruses.some((virus) => isSame(virus, next))) return bug;
-
-          if (isSame(next, player)) {
-            setGameOver(true);
-          }
+          if (isSame(next, player)) setGameOver(true);
 
           return next;
         })
@@ -208,7 +207,7 @@ export default function ByteMuncher() {
                   Byte Muncher
                 </h2>
                 <p className="text-sm text-gray-400">
-                  Desktop: arrow keys. Mobile: tap the board.
+                  Desktop: arrow keys. Mobile: swipe on the board.
                 </p>
               </div>
 
@@ -251,8 +250,9 @@ export default function ByteMuncher() {
 
             <div className="flex flex-1 items-center justify-center overflow-hidden">
               <div
-                className="touch-none select-none overflow-auto rounded-xl bg-zinc-950 p-4"
-                style={{ maxWidth: "100%" }}
+                onTouchStart={handleTouchStart}
+                onTouchEnd={handleTouchEnd}
+                className="touch-none select-none rounded-xl bg-zinc-950 p-4"
               >
                 <div
                   className="grid w-fit gap-1"
@@ -273,9 +273,7 @@ export default function ByteMuncher() {
                     return (
                       <div
                         key={index}
-                        onClick={() => handleBoardTap(current)}
-                        onTouchStart={() => handleBoardTap(current)}
-                        className="flex h-8 w-8 cursor-pointer touch-none select-none items-center justify-center rounded bg-zinc-800 text-lg"
+                        className="flex h-8 w-8 select-none items-center justify-center rounded bg-zinc-800 text-lg"
                       >
                         {isPlayer
                           ? "🛡️"
