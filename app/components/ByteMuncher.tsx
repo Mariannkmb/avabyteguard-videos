@@ -2,23 +2,34 @@
 
 import { useEffect, useState } from "react";
 
-const size = 12;
+const size = 14;
 
 type Position = {
   x: number;
   y: number;
 };
 
-const initialDots: Position[] = Array.from({ length: 45 }, (_, i) => ({
+const initialDots: Position[] = Array.from({ length: 60 }, (_, i) => ({
   x: (i * 5 + 2) % size,
   y: (i * 7 + 3) % size,
 }));
 
 const initialBugs: Position[] = [
-  { x: 10, y: 10 },
-  { x: 1, y: 10 },
-  { x: 10, y: 1 },
-  { x: 6, y: 6 },
+  { x: 12, y: 12 },
+  { x: 1, y: 12 },
+  { x: 12, y: 1 },
+  { x: 7, y: 7 },
+  { x: 4, y: 10 },
+];
+
+const viruses: Position[] = [
+  { x: 3, y: 3 },
+  { x: 5, y: 5 },
+  { x: 8, y: 4 },
+  { x: 10, y: 8 },
+  { x: 6, y: 11 },
+  { x: 11, y: 3 },
+  { x: 2, y: 9 },
 ];
 
 export default function ByteMuncher() {
@@ -28,6 +39,10 @@ export default function ByteMuncher() {
   const [score, setScore] = useState(0);
   const [gameOver, setGameOver] = useState(false);
   const [winner, setWinner] = useState(false);
+
+  function isSame(a: Position, b: Position) {
+    return a.x === b.x && a.y === b.y;
+  }
 
   useEffect(() => {
     function handleKeyDown(e: KeyboardEvent) {
@@ -41,14 +56,15 @@ export default function ByteMuncher() {
         if (e.key === "ArrowLeft") next.x = Math.max(0, current.x - 1);
         if (e.key === "ArrowRight") next.x = Math.min(size - 1, current.x + 1);
 
-        if (bugs.some((bug) => bug.x === next.x && bug.y === next.y)) {
+        if (
+          bugs.some((bug) => isSame(bug, next)) ||
+          viruses.some((virus) => isSame(virus, next))
+        ) {
           setGameOver(true);
         }
 
         setDots((currentDots) => {
-          const newDots = currentDots.filter(
-            (dot) => !(dot.x === next.x && dot.y === next.y)
-          );
+          const newDots = currentDots.filter((dot) => !isSame(dot, next));
 
           if (newDots.length < currentDots.length) {
             setScore((s) => s + 10);
@@ -89,14 +105,18 @@ export default function ByteMuncher() {
             else if (player.x < bug.x) next.x -= 1;
           }
 
-          if (next.x === player.x && next.y === player.y) {
+          if (viruses.some((virus) => isSame(virus, next))) {
+            return bug;
+          }
+
+          if (isSame(next, player)) {
             setGameOver(true);
           }
 
           return next;
         })
       );
-    }, 650);
+    }, 450);
 
     return () => clearInterval(interval);
   }, [player, gameOver, winner]);
@@ -117,7 +137,7 @@ export default function ByteMuncher() {
       </h2>
 
       <p className="mb-4 text-gray-300">
-        Use the arrow keys to collect all bytes and avoid the bugs.
+        Collect all bytes, avoid the bugs, and do not touch the viruses.
       </p>
 
       <div className="mb-4 flex items-center gap-4">
@@ -133,7 +153,7 @@ export default function ByteMuncher() {
 
       {gameOver && (
         <p className="mb-4 font-bold text-red-400">
-          Game Over — the bugs caught you!
+          Game Over — you were infected!
         </p>
       )}
 
@@ -151,16 +171,18 @@ export default function ByteMuncher() {
           const x = index % size;
           const y = Math.floor(index / size);
 
-          const isPlayer = player.x === x && player.y === y;
-          const isBug = bugs.some((bug) => bug.x === x && bug.y === y);
-          const hasDot = dots.some((dot) => dot.x === x && dot.y === y);
+          const current = { x, y };
+          const isPlayer = isSame(player, current);
+          const isBug = bugs.some((bug) => isSame(bug, current));
+          const isVirus = viruses.some((virus) => isSame(virus, current));
+          const hasDot = dots.some((dot) => isSame(dot, current));
 
           return (
             <div
               key={index}
               className="flex h-8 w-8 items-center justify-center rounded bg-zinc-800 text-lg"
             >
-              {isPlayer ? "🛡️" : isBug ? "🐞" : hasDot ? "•" : ""}
+              {isPlayer ? "🛡️" : isBug ? "🐞" : isVirus ? "🦠" : hasDot ? "•" : ""}
             </div>
           );
         })}
