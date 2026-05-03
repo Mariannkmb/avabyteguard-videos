@@ -151,17 +151,17 @@ export default function ByteMuncher() {
         </button>
       </div>
 
-      {gameOver && (
-        <p className="mb-4 font-bold text-red-400">
-          Game Over — you were infected!
-        </p>
-      )}
-
-      {winner && (
-        <p className="mb-4 rounded bg-green-600 px-4 py-3 text-xl font-black">
-          Winner!!
-        </p>
-      )}
+      {(gameOver || winner) && (
+            <p
+                className={`mb-4 rounded px-4 py-3 text-xl font-black ${
+                gameOver ? "bg-red-600 text-white" : "bg-green-600 text-white"
+                }`}
+            >
+                {gameOver
+                ? "Game Over — you were infected!"
+                : "Winner!! — system secured"}
+            </p>
+        )}
 
       <div
         className="grid w-fit gap-1 rounded-xl bg-zinc-950 p-4"
