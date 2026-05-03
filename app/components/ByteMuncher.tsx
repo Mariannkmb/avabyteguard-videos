@@ -52,10 +52,6 @@ export default function ByteMuncher() {
     setGameStarted(true);
   }
 
-  function restartGame() {
-    startGame();
-  }
-
   function movePlayer(direction: "up" | "down" | "left" | "right") {
     if (!gameStarted || gameOver || winner) return;
 
@@ -90,6 +86,21 @@ export default function ByteMuncher() {
 
       return next;
     });
+  }
+
+  function handleBoardTap(target: Position) {
+    if (!gameStarted || gameOver || winner) return;
+
+    const dx = target.x - player.x;
+    const dy = target.y - player.y;
+
+    if (dx === 0 && dy === 0) return;
+
+    if (Math.abs(dx) > Math.abs(dy)) {
+      movePlayer(dx > 0 ? "right" : "left");
+    } else {
+      movePlayer(dy > 0 ? "down" : "up");
+    }
   }
 
   useEffect(() => {
@@ -146,24 +157,19 @@ export default function ByteMuncher() {
         Collect all bytes, avoid the bugs, and do not touch the viruses.
       </p>
 
+      <p className="mb-4 text-sm text-gray-400">
+        Desktop: use arrow keys. Mobile: tap the board to move.
+      </p>
+
       <div className="mb-4 flex items-center gap-4">
         <p className="font-bold">Score: {score}</p>
 
-        {!gameStarted ? (
-          <button
-            onClick={startGame}
-            className="rounded bg-red-600 px-4 py-2 font-bold hover:bg-red-700"
-          >
-            Start Game
-          </button>
-        ) : (
-          <button
-            onClick={restartGame}
-            className="rounded bg-red-600 px-4 py-2 font-bold hover:bg-red-700"
-          >
-            Restart
-          </button>
-        )}
+        <button
+          onClick={startGame}
+          className="rounded bg-red-600 px-4 py-2 font-bold hover:bg-red-700"
+        >
+          {gameStarted ? "Restart" : "Start Game"}
+        </button>
       </div>
 
       {!gameStarted && (
@@ -200,7 +206,8 @@ export default function ByteMuncher() {
             return (
               <div
                 key={index}
-                className="flex h-8 w-8 items-center justify-center rounded bg-zinc-800 text-lg"
+                onClick={() => handleBoardTap(current)}
+                className="flex h-8 w-8 cursor-pointer select-none items-center justify-center rounded bg-zinc-800 text-lg"
               >
                 {isPlayer
                   ? "🛡️"
@@ -214,15 +221,6 @@ export default function ByteMuncher() {
               </div>
             );
           })}
-        </div>
-      </div>
-
-      <div className="mt-6 flex flex-col items-center gap-2 md:hidden">
-        <button onClick={() => movePlayer("up")} className="rounded bg-zinc-800 px-6 py-3 text-xl font-bold">↑</button>
-        <div className="flex gap-2">
-          <button onClick={() => movePlayer("left")} className="rounded bg-zinc-800 px-6 py-3 text-xl font-bold">←</button>
-          <button onClick={() => movePlayer("down")} className="rounded bg-zinc-800 px-6 py-3 text-xl font-bold">↓</button>
-          <button onClick={() => movePlayer("right")} className="rounded bg-zinc-800 px-6 py-3 text-xl font-bold">→</button>
         </div>
       </div>
     </section>
