@@ -30,6 +30,7 @@ const viruses: Position[] = [
 ];
 
 export default function ByteMuncher() {
+  const [gameOpen, setGameOpen] = useState(false);
   const [player, setPlayer] = useState<Position>({ x: 1, y: 1 });
   const [bugs, setBugs] = useState<Position[]>(initialBugs);
   const [dots, setDots] = useState<Position[]>(initialDots);
@@ -42,14 +43,24 @@ export default function ByteMuncher() {
     return a.x === b.x && a.y === b.y;
   }
 
-  function startGame() {
+  function resetGame() {
     setPlayer({ x: 1, y: 1 });
     setBugs(initialBugs);
     setDots(initialDots);
     setScore(0);
     setGameOver(false);
     setWinner(false);
+  }
+
+  function startGame() {
+    resetGame();
     setGameStarted(true);
+  }
+
+  function closeGame() {
+    setGameOpen(false);
+    setGameStarted(false);
+    resetGame();
   }
 
   function movePlayer(direction: "up" | "down" | "left" | "right") {
@@ -104,7 +115,22 @@ export default function ByteMuncher() {
   }
 
   useEffect(() => {
+    if (gameOpen) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "";
+    }
+
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, [gameOpen]);
+
+  useEffect(() => {
     function handleKeyDown(e: KeyboardEvent) {
+      if (!gameOpen) return;
+
+      if (e.key === "Escape") closeGame();
       if (e.key === "ArrowUp") movePlayer("up");
       if (e.key === "ArrowDown") movePlayer("down");
       if (e.key === "ArrowLeft") movePlayer("left");
@@ -116,7 +142,7 @@ export default function ByteMuncher() {
   });
 
   useEffect(() => {
-    if (!gameStarted || gameOver || winner) return;
+    if (!gameOpen || !gameStarted || gameOver || winner) return;
 
     const interval = setInterval(() => {
       setBugs((currentBugs) =>
@@ -147,82 +173,128 @@ export default function ByteMuncher() {
     }, 450);
 
     return () => clearInterval(interval);
-  }, [player, gameStarted, gameOver, winner]);
+  }, [player, gameOpen, gameStarted, gameOver, winner]);
 
   return (
     <section className="bg-black px-8 py-16 text-white">
-      <h2 className="mb-2 text-3xl font-black text-red-600">Byte Muncher</h2>
+      <div className="rounded-2xl border border-zinc-800 bg-zinc-950 p-6">
+        <h2 className="mb-2 text-3xl font-black text-red-600">
+          Byte Muncher
+        </h2>
 
-      <p className="mb-4 text-gray-300">
-        Collect all bytes, avoid the bugs, and do not touch the viruses.
-      </p>
-
-      <p className="mb-4 text-sm text-gray-400">
-        Desktop: use arrow keys. Mobile: tap the board to move.
-      </p>
-
-      <div className="mb-4 flex items-center gap-4">
-        <p className="font-bold">Score: {score}</p>
+        <p className="mb-6 text-gray-300">
+          A mini cybersecurity arcade game. Collect bytes, avoid bugs, and do
+          not touch the viruses.
+        </p>
 
         <button
-          onClick={startGame}
-          className="rounded bg-red-600 px-4 py-2 font-bold hover:bg-red-700"
+          onClick={() => {
+            setGameOpen(true);
+            setGameStarted(false);
+            resetGame();
+          }}
+          className="rounded bg-red-600 px-6 py-3 font-bold hover:bg-red-700"
         >
-          {gameStarted ? "Restart" : "Start Game"}
+          Open Game
         </button>
       </div>
 
-      {!gameStarted && (
-        <p className="mb-4 rounded bg-zinc-800 px-4 py-3 font-bold">
-          Press Start Game to begin.
-        </p>
-      )}
-
-      {(gameOver || winner) && (
-        <p
-          className={`mb-4 rounded px-4 py-3 text-xl font-black ${
-            gameOver ? "bg-red-600 text-white" : "bg-green-600 text-white"
-          }`}
-        >
-          {gameOver ? "Game Over — you were infected!" : "Winner!!"}
-        </p>
-      )}
-
-      <div className="overflow-x-auto">
-        <div
-          className="grid w-fit gap-1 rounded-xl bg-zinc-950 p-4"
-          style={{ gridTemplateColumns: `repeat(${size}, 32px)` }}
-        >
-          {Array.from({ length: size * size }).map((_, index) => {
-            const x = index % size;
-            const y = Math.floor(index / size);
-            const current = { x, y };
-
-            const isPlayer = isSame(player, current);
-            const isBug = bugs.some((bug) => isSame(bug, current));
-            const isVirus = viruses.some((virus) => isSame(virus, current));
-            const hasDot = dots.some((dot) => isSame(dot, current));
-
-            return (
-              <div
-                key={index}
-                onClick={() => handleBoardTap(current)}
-                className="flex h-8 w-8 cursor-pointer select-none items-center justify-center rounded bg-zinc-800 text-lg"
-              >
-                {isPlayer
-                  ? "🛡️"
-                  : isBug
-                  ? "🐞"
-                  : isVirus
-                  ? "🦠"
-                  : hasDot
-                  ? "•"
-                  : ""}
+      {gameOpen && (
+        <div className="fixed inset-0 z-50 overflow-hidden bg-black p-4 text-white">
+          <div className="mx-auto flex h-full max-w-5xl flex-col">
+            <div className="mb-4 flex items-center justify-between gap-4">
+              <div>
+                <h2 className="text-2xl font-black text-red-600">
+                  Byte Muncher
+                </h2>
+                <p className="text-sm text-gray-400">
+                  Desktop: arrow keys. Mobile: tap the board.
+                </p>
               </div>
-            );
-          })}
+
+              <button
+                onClick={closeGame}
+                className="rounded bg-zinc-800 px-4 py-2 font-bold hover:bg-zinc-700"
+              >
+                ✕ Close
+              </button>
+            </div>
+
+            <div className="mb-4 flex items-center gap-4">
+              <p className="font-bold">Score: {score}</p>
+
+              <button
+                onClick={startGame}
+                className="rounded bg-red-600 px-4 py-2 font-bold hover:bg-red-700"
+              >
+                {gameStarted ? "Restart" : "Start Game"}
+              </button>
+            </div>
+
+            {!gameStarted && (
+              <p className="mb-4 rounded bg-zinc-800 px-4 py-3 font-bold">
+                Press Start Game to begin.
+              </p>
+            )}
+
+            {(gameOver || winner) && (
+              <p
+                className={`mb-4 rounded px-4 py-3 text-xl font-black ${
+                  gameOver
+                    ? "bg-red-600 text-white"
+                    : "bg-green-600 text-white"
+                }`}
+              >
+                {gameOver ? "Game Over — you were infected!" : "Winner!!"}
+              </p>
+            )}
+
+            <div className="flex flex-1 items-center justify-center overflow-hidden">
+              <div
+                className="touch-none select-none overflow-auto rounded-xl bg-zinc-950 p-4"
+                style={{ maxWidth: "100%" }}
+              >
+                <div
+                  className="grid w-fit gap-1"
+                  style={{ gridTemplateColumns: `repeat(${size}, 32px)` }}
+                >
+                  {Array.from({ length: size * size }).map((_, index) => {
+                    const x = index % size;
+                    const y = Math.floor(index / size);
+                    const current = { x, y };
+
+                    const isPlayer = isSame(player, current);
+                    const isBug = bugs.some((bug) => isSame(bug, current));
+                    const isVirus = viruses.some((virus) =>
+                      isSame(virus, current)
+                    );
+                    const hasDot = dots.some((dot) => isSame(dot, current));
+
+                    return (
+                      <div
+                        key={index}
+                        onClick={() => handleBoardTap(current)}
+                        onTouchStart={() => handleBoardTap(current)}
+                        className="flex h-8 w-8 cursor-pointer touch-none select-none items-center justify-center rounded bg-zinc-800 text-lg"
+                      >
+                        {isPlayer
+                          ? "🛡️"
+                          : isBug
+                          ? "🐞"
+                          : isVirus
+                          ? "🦠"
+                          : hasDot
+                          ? "•"
+                          : ""}
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
-      </div>
+      )}
     </section>
   );
 }
