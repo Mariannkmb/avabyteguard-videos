@@ -35,12 +35,16 @@ export default function Home() {
       >
         <div className="absolute inset-0 bg-gradient-to-r from-black via-black/80 to-transparent" />
 
-        <nav className="relative z-10 px-8 py-6">
+        <nav className="relative z-10 flex items-center gap-8 px-8 py-6">
           <h1 className="text-3xl font-black text-red-600">AVABYTEGUARD</h1>
-          <div className="flex gap-6 text-white text-sm ml-6">
-            <a href="/" className="hover:text-gray-300">Home</a>
-            <a href="/about" className="hover:text-gray-300">About</a>
-          </div>
+
+          <a href="/" className="text-sm text-gray-300 hover:text-white">
+            Home
+          </a>
+
+          <a href="/about" className="text-sm text-gray-300 hover:text-white">
+            About
+          </a>
         </nav>
 
         <div className="relative z-10 px-8 pt-24 max-w-2xl">
