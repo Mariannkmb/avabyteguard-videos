@@ -35,7 +35,7 @@ const viruses: Position[] = [
 export default function ByteMuncher() {
   const [player, setPlayer] = useState<Position>({ x: 1, y: 1 });
   const [bugs, setBugs] = useState<Position[]>(initialBugs);
-  const [dots, setDots] = useState(initialDots);
+  const [dots, setDots] = useState<Position[]>(initialDots);
   const [score, setScore] = useState(0);
   const [gameOver, setGameOver] = useState(false);
   const [winner, setWinner] = useState(false);
@@ -44,46 +44,53 @@ export default function ByteMuncher() {
     return a.x === b.x && a.y === b.y;
   }
 
-  useEffect(() => {
-    function handleKeyDown(e: KeyboardEvent) {
-      if (gameOver || winner) return;
+  function movePlayer(direction: "up" | "down" | "left" | "right") {
+    if (gameOver || winner) return;
 
-      setPlayer((current) => {
-        const next = { ...current };
+    setPlayer((current) => {
+      const next = { ...current };
 
-        if (e.key === "ArrowUp") next.y = Math.max(0, current.y - 1);
-        if (e.key === "ArrowDown") next.y = Math.min(size - 1, current.y + 1);
-        if (e.key === "ArrowLeft") next.x = Math.max(0, current.x - 1);
-        if (e.key === "ArrowRight") next.x = Math.min(size - 1, current.x + 1);
+      if (direction === "up") next.y = Math.max(0, current.y - 1);
+      if (direction === "down") next.y = Math.min(size - 1, current.y + 1);
+      if (direction === "left") next.x = Math.max(0, current.x - 1);
+      if (direction === "right") next.x = Math.min(size - 1, current.x + 1);
 
-        if (
-          bugs.some((bug) => isSame(bug, next)) ||
-          viruses.some((virus) => isSame(virus, next))
-        ) {
-          setGameOver(true);
+      if (
+        bugs.some((bug) => isSame(bug, next)) ||
+        viruses.some((virus) => isSame(virus, next))
+      ) {
+        setGameOver(true);
+      }
+
+      setDots((currentDots) => {
+        const newDots = currentDots.filter((dot) => !isSame(dot, next));
+
+        if (newDots.length < currentDots.length) {
+          setScore((s) => s + 10);
         }
 
-        setDots((currentDots) => {
-          const newDots = currentDots.filter((dot) => !isSame(dot, next));
+        if (newDots.length === 0) {
+          setWinner(true);
+        }
 
-          if (newDots.length < currentDots.length) {
-            setScore((s) => s + 10);
-          }
-
-          if (newDots.length === 0) {
-            setWinner(true);
-          }
-
-          return newDots;
-        });
-
-        return next;
+        return newDots;
       });
+
+      return next;
+    });
+  }
+
+  useEffect(() => {
+    function handleKeyDown(e: KeyboardEvent) {
+      if (e.key === "ArrowUp") movePlayer("up");
+      if (e.key === "ArrowDown") movePlayer("down");
+      if (e.key === "ArrowLeft") movePlayer("left");
+      if (e.key === "ArrowRight") movePlayer("right");
     }
 
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [bugs, gameOver, winner]);
+  });
 
   useEffect(() => {
     if (gameOver || winner) return;
@@ -132,9 +139,7 @@ export default function ByteMuncher() {
 
   return (
     <section className="bg-black px-8 py-16 text-white">
-      <h2 className="mb-2 text-3xl font-black text-red-600">
-        Byte Muncher
-      </h2>
+      <h2 className="mb-2 text-3xl font-black text-red-600">Byte Muncher</h2>
 
       <p className="mb-4 text-gray-300">
         Collect all bytes, avoid the bugs, and do not touch the viruses.
@@ -152,40 +157,80 @@ export default function ByteMuncher() {
       </div>
 
       {(gameOver || winner) && (
-            <p
-                className={`mb-4 rounded px-4 py-3 text-xl font-black ${
-                gameOver ? "bg-red-600 text-white" : "bg-green-600 text-white"
-                }`}
-            >
-                {gameOver
-                ? "Game Over — you were infected!"
-                : "Winner!! — system secured"}
-            </p>
-        )}
+        <p
+          className={`mb-4 rounded px-4 py-3 text-xl font-black ${
+            gameOver ? "bg-red-600 text-white" : "bg-green-600 text-white"
+          }`}
+        >
+          {gameOver ? "Game Over — you were infected!" : "Winner!!"}
+        </p>
+      )}
 
-      <div
-        className="grid w-fit gap-1 rounded-xl bg-zinc-950 p-4"
-        style={{ gridTemplateColumns: `repeat(${size}, 32px)` }}
-      >
-        {Array.from({ length: size * size }).map((_, index) => {
-          const x = index % size;
-          const y = Math.floor(index / size);
+      <div className="overflow-x-auto">
+        <div
+          className="grid w-fit gap-1 rounded-xl bg-zinc-950 p-4"
+          style={{ gridTemplateColumns: `repeat(${size}, 32px)` }}
+        >
+          {Array.from({ length: size * size }).map((_, index) => {
+            const x = index % size;
+            const y = Math.floor(index / size);
 
-          const current = { x, y };
-          const isPlayer = isSame(player, current);
-          const isBug = bugs.some((bug) => isSame(bug, current));
-          const isVirus = viruses.some((virus) => isSame(virus, current));
-          const hasDot = dots.some((dot) => isSame(dot, current));
+            const current = { x, y };
+            const isPlayer = isSame(player, current);
+            const isBug = bugs.some((bug) => isSame(bug, current));
+            const isVirus = viruses.some((virus) => isSame(virus, current));
+            const hasDot = dots.some((dot) => isSame(dot, current));
 
-          return (
-            <div
-              key={index}
-              className="flex h-8 w-8 items-center justify-center rounded bg-zinc-800 text-lg"
-            >
-              {isPlayer ? "🛡️" : isBug ? "🐞" : isVirus ? "🦠" : hasDot ? "•" : ""}
-            </div>
-          );
-        })}
+            return (
+              <div
+                key={index}
+                className="flex h-8 w-8 items-center justify-center rounded bg-zinc-800 text-lg"
+              >
+                {isPlayer
+                  ? "🛡️"
+                  : isBug
+                  ? "🐞"
+                  : isVirus
+                  ? "🦠"
+                  : hasDot
+                  ? "•"
+                  : ""}
+              </div>
+            );
+          })}
+        </div>
+      </div>
+
+      <div className="mt-6 flex flex-col items-center gap-2 md:hidden">
+        <button
+          onClick={() => movePlayer("up")}
+          className="rounded bg-zinc-800 px-6 py-3 text-xl font-bold"
+        >
+          ↑
+        </button>
+
+        <div className="flex gap-2">
+          <button
+            onClick={() => movePlayer("left")}
+            className="rounded bg-zinc-800 px-6 py-3 text-xl font-bold"
+          >
+            ←
+          </button>
+
+          <button
+            onClick={() => movePlayer("down")}
+            className="rounded bg-zinc-800 px-6 py-3 text-xl font-bold"
+          >
+            ↓
+          </button>
+
+          <button
+            onClick={() => movePlayer("right")}
+            className="rounded bg-zinc-800 px-6 py-3 text-xl font-bold"
+          >
+            →
+          </button>
+        </div>
       </div>
     </section>
   );
