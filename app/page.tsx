@@ -106,7 +106,7 @@ export default function Home() {
 
             <iframe
               className="w-full aspect-video"
-              src={`https://www.youtube.com/embed/${selectedVideo.id}?autoplay=1`}
+              src={`https://www.youtube.com/embed/${selectedVideo.id}?autoplay=1&mute=1&rel=0`}
               allowFullScreen
             />
           </div>
