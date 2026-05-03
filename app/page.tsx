@@ -37,6 +37,10 @@ export default function Home() {
 
         <nav className="relative z-10 px-8 py-6">
           <h1 className="text-3xl font-black text-red-600">AVABYTEGUARD</h1>
+          <div className="flex gap-6 text-white text-sm ml-6">
+            <a href="/" className="hover:text-gray-300">Home</a>
+            <a href="/about" className="hover:text-gray-300">About</a>
+          </div>
         </nav>
 
         <div className="relative z-10 px-8 pt-24 max-w-2xl">
