@@ -4,10 +4,7 @@ import { useEffect, useState } from "react";
 
 const size = 14;
 
-type Position = {
-  x: number;
-  y: number;
-};
+type Position = { x: number; y: number };
 
 const initialDots: Position[] = Array.from({ length: 60 }, (_, i) => ({
   x: (i * 5 + 2) % size,
@@ -37,6 +34,7 @@ export default function ByteMuncher() {
   const [bugs, setBugs] = useState<Position[]>(initialBugs);
   const [dots, setDots] = useState<Position[]>(initialDots);
   const [score, setScore] = useState(0);
+  const [gameStarted, setGameStarted] = useState(false);
   const [gameOver, setGameOver] = useState(false);
   const [winner, setWinner] = useState(false);
 
@@ -44,8 +42,22 @@ export default function ByteMuncher() {
     return a.x === b.x && a.y === b.y;
   }
 
+  function startGame() {
+    setPlayer({ x: 1, y: 1 });
+    setBugs(initialBugs);
+    setDots(initialDots);
+    setScore(0);
+    setGameOver(false);
+    setWinner(false);
+    setGameStarted(true);
+  }
+
+  function restartGame() {
+    startGame();
+  }
+
   function movePlayer(direction: "up" | "down" | "left" | "right") {
-    if (gameOver || winner) return;
+    if (!gameStarted || gameOver || winner) return;
 
     setPlayer((current) => {
       const next = { ...current };
@@ -93,7 +105,7 @@ export default function ByteMuncher() {
   });
 
   useEffect(() => {
-    if (gameOver || winner) return;
+    if (!gameStarted || gameOver || winner) return;
 
     const interval = setInterval(() => {
       setBugs((currentBugs) =>
@@ -112,9 +124,7 @@ export default function ByteMuncher() {
             else if (player.x < bug.x) next.x -= 1;
           }
 
-          if (viruses.some((virus) => isSame(virus, next))) {
-            return bug;
-          }
+          if (viruses.some((virus) => isSame(virus, next))) return bug;
 
           if (isSame(next, player)) {
             setGameOver(true);
@@ -126,16 +136,7 @@ export default function ByteMuncher() {
     }, 450);
 
     return () => clearInterval(interval);
-  }, [player, gameOver, winner]);
-
-  function restartGame() {
-    setPlayer({ x: 1, y: 1 });
-    setBugs(initialBugs);
-    setDots(initialDots);
-    setScore(0);
-    setGameOver(false);
-    setWinner(false);
-  }
+  }, [player, gameStarted, gameOver, winner]);
 
   return (
     <section className="bg-black px-8 py-16 text-white">
@@ -148,13 +149,28 @@ export default function ByteMuncher() {
       <div className="mb-4 flex items-center gap-4">
         <p className="font-bold">Score: {score}</p>
 
-        <button
-          onClick={restartGame}
-          className="rounded bg-red-600 px-4 py-2 font-bold hover:bg-red-700"
-        >
-          Restart
-        </button>
+        {!gameStarted ? (
+          <button
+            onClick={startGame}
+            className="rounded bg-red-600 px-4 py-2 font-bold hover:bg-red-700"
+          >
+            Start Game
+          </button>
+        ) : (
+          <button
+            onClick={restartGame}
+            className="rounded bg-red-600 px-4 py-2 font-bold hover:bg-red-700"
+          >
+            Restart
+          </button>
+        )}
       </div>
+
+      {!gameStarted && (
+        <p className="mb-4 rounded bg-zinc-800 px-4 py-3 font-bold">
+          Press Start Game to begin.
+        </p>
+      )}
 
       {(gameOver || winner) && (
         <p
@@ -174,8 +190,8 @@ export default function ByteMuncher() {
           {Array.from({ length: size * size }).map((_, index) => {
             const x = index % size;
             const y = Math.floor(index / size);
-
             const current = { x, y };
+
             const isPlayer = isSame(player, current);
             const isBug = bugs.some((bug) => isSame(bug, current));
             const isVirus = viruses.some((virus) => isSame(virus, current));
@@ -202,34 +218,11 @@ export default function ByteMuncher() {
       </div>
 
       <div className="mt-6 flex flex-col items-center gap-2 md:hidden">
-        <button
-          onClick={() => movePlayer("up")}
-          className="rounded bg-zinc-800 px-6 py-3 text-xl font-bold"
-        >
-          ↑
-        </button>
-
+        <button onClick={() => movePlayer("up")} className="rounded bg-zinc-800 px-6 py-3 text-xl font-bold">↑</button>
         <div className="flex gap-2">
-          <button
-            onClick={() => movePlayer("left")}
-            className="rounded bg-zinc-800 px-6 py-3 text-xl font-bold"
-          >
-            ←
-          </button>
-
-          <button
-            onClick={() => movePlayer("down")}
-            className="rounded bg-zinc-800 px-6 py-3 text-xl font-bold"
-          >
-            ↓
-          </button>
-
-          <button
-            onClick={() => movePlayer("right")}
-            className="rounded bg-zinc-800 px-6 py-3 text-xl font-bold"
-          >
-            →
-          </button>
+          <button onClick={() => movePlayer("left")} className="rounded bg-zinc-800 px-6 py-3 text-xl font-bold">←</button>
+          <button onClick={() => movePlayer("down")} className="rounded bg-zinc-800 px-6 py-3 text-xl font-bold">↓</button>
+          <button onClick={() => movePlayer("right")} className="rounded bg-zinc-800 px-6 py-3 text-xl font-bold">→</button>
         </div>
       </div>
     </section>
