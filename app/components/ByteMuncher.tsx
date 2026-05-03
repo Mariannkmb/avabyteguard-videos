@@ -176,7 +176,7 @@ export default function ByteMuncher() {
 
   return (
     <section className="bg-black px-8 py-16 text-white">
-      <div className="rounded-2xl border border-zinc-800 bg-zinc-950 p-6">
+      <div className="rounded-2xl border-2 border-red-600 bg-zinc-950 p-6 shadow-[0_0_30px_rgba(220,38,38,0.45)]">
         <h2 className="mb-2 text-3xl font-black text-red-600">
           Byte Muncher
         </h2>
@@ -199,11 +199,11 @@ export default function ByteMuncher() {
       </div>
 
       {gameOpen && (
-        <div className="fixed inset-0 z-50 overflow-hidden bg-black p-4 text-white">
-          <div className="mx-auto flex h-full max-w-5xl flex-col">
+        <div className="fixed inset-0 z-50 overflow-hidden bg-[radial-gradient(circle_at_center,#1a0000,#000)] p-4 text-white">
+          <div className="mx-auto flex h-full max-w-5xl flex-col justify-center">
             <div className="mb-4 flex items-center justify-between gap-4">
               <div>
-                <h2 className="text-2xl font-black text-red-600">
+                <h2 className="text-3xl font-black tracking-widest text-red-600 drop-shadow-[0_0_10px_rgba(220,38,38,0.9)]">
                   Byte Muncher
                 </h2>
                 <p className="text-sm text-gray-400">
@@ -248,12 +248,12 @@ export default function ByteMuncher() {
               </p>
             )}
 
-            <div className="flex flex-1 items-center justify-center overflow-hidden">
+            <div className="flex flex-1 items-center justify-center">
               <div
                 onTouchStart={handleTouchStart}
                 onTouchEnd={handleTouchEnd}
-                className="touch-none select-none rounded-xl bg-zinc-950 p-2 sm:p-4 w-full max-w-[92vw] sm:max-w-[520px]"
-              >
+                className="touch-none select-none rounded-xl bg-zinc-950 p-2 sm:p-4 w-full max-w-[92vw] sm:max-w-[520px] flex items-center justify-center"
+                >
                 <div
                   className="grid w-fit gap-1"
                   style={{ gridTemplateColumns: `repeat(${size}, minmax(0, 1fr))` }}
@@ -273,7 +273,7 @@ export default function ByteMuncher() {
                     return (
                       <div
                         key={index}
-                        className="flex aspect-square w-full select-none items-center justify-center rounded bg-zinc-800 text-sm sm:text-lg"
+                       className="flex aspect-square w-full select-none items-center justify-center rounded bg-zinc-900 text-sm sm:text-lg shadow-inner"
                       >
                         {isPlayer
                           ? "🛡️"
