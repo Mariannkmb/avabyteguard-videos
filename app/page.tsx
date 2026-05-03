@@ -3,20 +3,25 @@
 import { useState } from "react";
 
 const videos = [
-  { title: "Artemis II  The Cyber Frontier", id: "AzYxyKP3PhU", type: "video", year: "2026" },
-  { title: "Quantum Security  The 2026 Shift", id: "eX-I0pdgPio", type: "short", year: "2026" },
+  { title: "Artemis II The Cyber Frontier", id: "AzYxyKP3PhU", type: "video", year: "2026" },
+  { title: "Quantum Security The 2026 Shift", id: "eX-I0pdgPio", type: "short", year: "2026" },
   { title: "Cybersecurity 2026: What Really Changes", id: "pqipoYNFCPI", type: "short", year: "2026" },
-  { title: "Cyber News Agosto 2025", id: "jK5Ce_Rbvnc", type: "video", year: "2025" },
+
+  { title: "Cyber News October 2025", id: "EBodKr-ZUp8", type: "short", year: "2025" },
+  { title: "Cyber News September 2025", id: "IdjR6JptHok", type: "short", year: "2025" },
+  { title: "Cyber News August 2025", id: "jK5Ce_Rbvnc", type: "video", year: "2025" },
   { title: "AI Friend and Lover", id: "xm9sluoR4hw", type: "video", year: "2025" },
-  { title: "Partirock Phishguard video", id: "3fQdx-8uDNw", type: "video", year: "2025" },
-  { title: "Revamping Password Security NIST's New Guidelines Explained", id: "L-FAJySAnao", type: "video", year: "2024" },
-  { title: "The Impact of Third Party Providers on Cybersecurity Should We Set Higher Standards", id: "XyVcq7dbvzI", type: "video", year: "2024" },
-  { title: "The Future of Energy Nuclear Batteries Revolutionize Power Generation", id: "-8IEP0CDTUE", type: "video", year: "2024" },
+  { title: "Partirock Phishguard Video", id: "3fQdx-8uDNw", type: "video", year: "2025" },
+
+  { title: "Revamping Password Security: NIST's New Guidelines Explained", id: "L-FAJySAnao", type: "video", year: "2024" },
+  { title: "The Impact of Third Party Providers on Cybersecurity", id: "XyVcq7dbvzI", type: "video", year: "2024" },
+  { title: "The Future of Energy: Nuclear Batteries", id: "-8IEP0CDTUE", type: "video", year: "2024" },
   { title: "Find Impersonations & Digital Footprint Online", id: "9qe-pcsj8tk", type: "video", year: "2024" },
-  { title: "Serious Cybersecurity Incidents of 2023 and Recommendations", id: "pwi02nrgm1g", type: "video", year: "2023" },
-  { title: "A series of unfortunate events", id: "7UH16YgxIi0", type: "video", year: "2023" },
-  { title: "The Dark Web Unveiled A Cyber Criminal Storefront Exposed", id: "P--HsLaMYwQ", type: "video", year: "2023" },
-  { title: "Cyber Attacks on U S Water Systems Raise Concerns", id: "gk5Ghz17BR0", type: "video", year: "2023" },
+
+  { title: "Serious Cybersecurity Incidents of 2023", id: "pwi02nrgm1g", type: "video", year: "2023" },
+  { title: "A Series of Unfortunate Events", id: "7UH16YgxIi0", type: "video", year: "2023" },
+  { title: "The Dark Web Unveiled", id: "P--HsLaMYwQ", type: "video", year: "2023" },
+  { title: "Cyber Attacks on U.S. Water Systems", id: "gk5Ghz17BR0", type: "video", year: "2023" },
 ];
 
 const years = Array.from(new Set(videos.map(v => v.year))).sort((a,b)=>Number(b)-Number(a));
