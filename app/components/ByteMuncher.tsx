@@ -252,11 +252,11 @@ export default function ByteMuncher() {
               <div
                 onTouchStart={handleTouchStart}
                 onTouchEnd={handleTouchEnd}
-                className="touch-none select-none rounded-xl bg-zinc-950 p-4"
+                className="touch-none select-none rounded-xl bg-zinc-950 p-2 sm:p-4 w-full max-w-[92vw] sm:max-w-[520px]"
               >
                 <div
                   className="grid w-fit gap-1"
-                  style={{ gridTemplateColumns: `repeat(${size}, 32px)` }}
+                  style={{ gridTemplateColumns: `repeat(${size}, minmax(0, 1fr))` }}
                 >
                   {Array.from({ length: size * size }).map((_, index) => {
                     const x = index % size;
@@ -273,7 +273,7 @@ export default function ByteMuncher() {
                     return (
                       <div
                         key={index}
-                        className="flex h-8 w-8 select-none items-center justify-center rounded bg-zinc-800 text-lg"
+                        className="flex aspect-square w-full select-none items-center justify-center rounded bg-zinc-800 text-sm sm:text-lg"
                       >
                         {isPlayer
                           ? "🛡️"
