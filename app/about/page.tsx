@@ -6,7 +6,7 @@ export default function About() {
 
         <nav className="relative z-10 flex items-center gap-8 px-8 py-6">
           <a href="/" className="text-3xl font-black text-red-600">
-            AVABYTEGUARD
+            AVA BYTEGUARD
           </a>
 
           <a href="/" className="text-sm text-gray-300 hover:text-white">
