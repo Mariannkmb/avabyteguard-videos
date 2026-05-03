@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import ByteMuncher from "./components/ByteMuncher";
 
 const videos = [
   { title: "Artemis II The Cyber Frontier", id: "AzYxyKP3PhU", type: "video", year: "2026" },
@@ -112,6 +113,7 @@ export default function Home() {
           </div>
         </div>
       )}
+      <ByteMuncher />
     </main>
   );
 }
