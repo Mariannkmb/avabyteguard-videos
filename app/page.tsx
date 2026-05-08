@@ -4,6 +4,7 @@ import { useState } from "react";
 import ByteMuncher from "./components/ByteMuncher";
 
 const videos = [
+  { title: "The Paradox of AI Hallucinations", id: "q6U8sIUS3F8", type: "video", year: "2026" },
   { title: "Artemis II The Cyber Frontier", id: "AzYxyKP3PhU", type: "video", year: "2026" },
   { title: "Quantum Security The 2026 Shift", id: "eX-I0pdgPio", type: "short", year: "2026" },
   { title: "Cybersecurity 2026: What Really Changes", id: "pqipoYNFCPI", type: "short", year: "2026" },
