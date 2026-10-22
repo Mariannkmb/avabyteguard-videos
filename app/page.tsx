@@ -4,6 +4,7 @@ import { useState } from "react";
 import ByteMuncher from "./components/ByteMuncher";
 
 const videos = [
+  { title: "AI found a flaw in 70% of websites. Is yours one of them?", id: "SWa85MEgfiA", type: "short", year: "2026" },
   { title: "They didn't hack his computer. They cloned his CEO!", id: "8S8CslfhO_A", type: "short", year: "2026" },
   { title: "The Padlock Was Real. The Route Was Hijacked", id: "CCs2SgIvBqs", type: "short", year: "2026" },
   { title: "The Paradox of AI Hallucinations", id: "q6U8sIUS3F8", type: "video", year: "2026" },
