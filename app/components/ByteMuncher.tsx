@@ -1957,6 +1957,7 @@ function GameModal({
         )}
 
         <div className="grid items-start gap-5 lg:grid-cols-[minmax(0,1fr)_280px]">
+          <div className="flex min-w-0 flex-col gap-4">
           <section
             className="flex min-w-0 flex-col gap-3 rounded-2xl p-3 sm:p-4"
             style={{ background: C.panel, border: `1px solid ${C.line}`, boxShadow: "0 30px 80px -30px rgba(230,57,70,.25)" }}
@@ -2059,6 +2060,34 @@ function GameModal({
             </div>
           </section>
 
+          {/* computer: field guide laid out in a row under the board */}
+          <div
+            className="hidden flex-col gap-3 rounded-2xl p-4 lg:flex"
+            style={{ background: C.panel, border: `1px solid ${C.line}` }}
+          >
+            <h3 className={`${display.className} text-sm tracking-widest`} style={{ color: C.muted }}>
+              FIELD GUIDE
+            </h3>
+            <ul className="grid grid-cols-5 gap-4">
+              {BASICS.map((l) => (
+                <li key={l.title} className="flex min-w-0 flex-col gap-1.5">
+                  <div className="flex items-center gap-2">
+                    <LegendIcon kind={l.kind} />
+                    <b className="text-[14px] leading-tight font-semibold">{l.title}</b>
+                  </div>
+                  <span className="text-[13px] leading-snug" style={{ color: C.muted }}>
+                    {l.text}
+                  </span>
+                </li>
+              ))}
+            </ul>
+            <p className="border-t pt-3 text-[13px]" style={{ color: C.muted, borderColor: C.line }}>
+              <b style={{ color: C.fg }}>Side tunnels:</b> run off one edge of the board and reappear on the other side. Only you
+              can use them, so they are your escape route.
+            </p>
+          </div>
+          </div>
+
           <aside className="flex min-w-0 flex-col gap-5">
             <Leaderboard board={board} highlight={me} />
 
@@ -2092,7 +2121,7 @@ function GameModal({
               </p>
             </div>
 
-            <div className="flex flex-col gap-2">
+            <div className="flex flex-col gap-2 lg:hidden">
               <h3 className={`${display.className} text-sm tracking-widest`} style={{ color: C.muted }}>
                 FIELD GUIDE
               </h3>
