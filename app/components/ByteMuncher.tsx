@@ -129,7 +129,7 @@ const POWERS: Record<Power, { name: string; desc: string; from: number }> = {
   key: { name: "Encryption key", desc: "Surprise bonus. Grab it before it vanishes.", from: 1 },
   backup: { name: "Backup", desc: "Database icon with a red cross. Adds one shield (up to 5).", from: 1 },
   ids: { name: "IDS radar", desc: "Intrusion detected: every threat freezes for 5 s.", from: 2 },
-  firewall: { name: "Firewall mode", desc: "The Muncher becomes a firewall for 6 s and burns through bugs and viruses.", from: 3 },
+  firewall: { name: "Firewall mode", desc: "ByteGuard-Man becomes a firewall for 6 s and burns through bugs and viruses.", from: 3 },
   ai: { name: "AI copilot", desc: "An AI drone zaps any bug that gets close for 8 s.", from: 4 },
 };
 const UNLOCK: Record<number, Power> = { 2: "ids", 3: "firewall", 4: "ai" };
@@ -822,7 +822,7 @@ function createGame(cv: HTMLCanvasElement, onHud: (h: Hud) => void) {
   }
   const dist = (r: number, c: number) => Math.abs(r - player.r) + Math.abs(c - player.c);
   function choose(e: Ent, mode: number, greed: number): Vec {
-    // only the Muncher can cross a side tunnel: enemies stop at the board edge
+    // only ByteGuard-Man can cross a side tunnel: enemies stop at the board edge
     const opts = Object.values(DIRS).filter(
       ([dr, dc]) => e.c + dc >= 0 && e.c + dc < N && open(e.r + dr, e.c + dc)
     );
@@ -1834,7 +1834,7 @@ function GameModal({
       }}
       role="dialog"
       aria-modal="true"
-      aria-label="Byte Muncher"
+      aria-label="ByteGuard-Man"
     >
       <style>{`@keyframes bmToast{0%{opacity:0;transform:translateY(6px)}10%,75%{opacity:1;transform:none}100%{opacity:0}}.bm-toast{animation:bmToast 2.4s ease forwards}@keyframes bmPop{0%{transform:scale(1)}30%{transform:scale(1.25)}100%{transform:scale(1)}}.bm-pop{animation:bmPop .5s ease}.bm-board{width:min(100%,600px,66vh)}@media (pointer:coarse){.bm-board{width:min(100%,64vh)}}@media (prefers-reduced-motion:reduce){.bm-toast{animation:none}}`}</style>
       <div className="mx-auto flex max-w-6xl flex-col gap-4 px-4 py-5 sm:py-8">
@@ -1843,8 +1843,10 @@ function GameModal({
             <div className="text-xs uppercase tracking-[0.18em]" style={{ color: C.muted }}>
               AvaByteGuard Arcade · Rank: <span style={{ color: RANK_EMBLEM[level - 1].startsWith("rgba") ? C.fg : RANK_EMBLEM[level - 1] }}>{RANKS[level - 1]}</span>
             </div>
-            <h2 className={`${display.className} text-4xl leading-none font-bold sm:text-5xl`}>
-              Byte <span style={{ color: C.red, textShadow: "0 0 18px rgba(230,57,70,.55)" }}>Muncher</span>
+            <h2 className={`${display.className} text-3xl leading-none font-bold sm:text-5xl`}>
+              <span className="whitespace-nowrap">
+                ByteGuard<span style={{ color: C.red, textShadow: "0 0 18px rgba(230,57,70,.55)" }}>-Man</span>
+              </span>
             </h2>
           </div>
           <div className="flex flex-wrap items-center gap-2">
@@ -1957,7 +1959,7 @@ function GameModal({
             style={{ background: C.panel, border: `1px solid ${C.line}`, boxShadow: "0 30px 80px -30px rgba(230,57,70,.25)" }}
           >
             <div className="bm-board relative mx-auto aspect-square overflow-hidden rounded-lg" style={{ background: "#060912" }}>
-              <canvas ref={canvasRef} className="block h-full w-full touch-none select-none" aria-label="Byte Muncher game board" />
+              <canvas ref={canvasRef} className="block h-full w-full touch-none select-none" aria-label="ByteGuard-Man game board" />
               <div
                 className="pointer-events-none absolute inset-0"
                 style={{ background: "repeating-linear-gradient(to bottom, rgba(255,255,255,.025) 0 1px, transparent 1px 3px)" }}
@@ -2191,7 +2193,9 @@ export default function ByteMuncher() {
           AvaByteGuard Arcade · {LEVELS} levels
         </div>
         <h2 className={`${display.className} mt-1 mb-3 text-3xl font-bold sm:text-4xl`}>
-          Byte <span style={{ color: C.red, textShadow: "0 0 18px rgba(230,57,70,.55)" }}>Muncher</span>
+          <span className="whitespace-nowrap">
+                ByteGuard<span style={{ color: C.red, textShadow: "0 0 18px rgba(230,57,70,.55)" }}>-Man</span>
+              </span>
         </h2>
         <div className="grid items-start gap-6 md:grid-cols-[minmax(0,1fr)_300px]">
           <div className="min-w-0">
