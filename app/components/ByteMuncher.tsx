@@ -127,7 +127,7 @@ const LIFE_EVERY = 2500;
 type Power = "key" | "backup" | "ids" | "firewall" | "ai";
 const POWERS: Record<Power, { name: string; desc: string; from: number }> = {
   key: { name: "Encryption key", desc: "Surprise bonus. Grab it before it vanishes.", from: 1 },
-  backup: { name: "Backup", desc: "Restores one shield.", from: 1 },
+  backup: { name: "Backup", desc: "Database icon with a red cross. Adds one shield (up to 5).", from: 1 },
   ids: { name: "IDS radar", desc: "Intrusion detected: every threat freezes for 5 s.", from: 2 },
   firewall: { name: "Firewall mode", desc: "The Muncher becomes a firewall for 6 s and burns through bugs and viruses.", from: 3 },
   ai: { name: "AI copilot", desc: "An AI drone zaps any bug that gets close for 8 s.", from: 4 },
@@ -183,20 +183,33 @@ function drawByte(g: G, x: number, y: number, s: number) {
   g.fillRect(-k, -k, k * 2, k * 2);
   g.restore();
 }
+// security patch = a red bandage (not a shield, so it isn't confused with the shields/lives)
 function drawPatch(g: G, x: number, y: number, s: number, time: number) {
-  const p = 1 + Math.sin(time / 180) * 0.12;
+  const p = 1 + Math.sin(time / 180) * 0.1;
+  const w = s * 0.36,
+    h = s * 0.15;
   g.save();
   g.translate(x, y);
+  g.rotate(-Math.PI / 5);
   g.scale(p, p);
   g.shadowColor = C.red;
-  g.shadowBlur = s * 0.7;
-  shield(g, 0, 0, s * 0.34, C.red);
-  g.fillStyle = "#fff";
+  g.shadowBlur = s * 0.6;
+  g.fillStyle = C.red;
+  g.beginPath();
+  g.roundRect(-w, -h, w * 2, h * 2, h);
+  g.fill();
   g.shadowBlur = 0;
-  const w = s * 0.06,
-    l = s * 0.15;
-  g.fillRect(-w / 2, -l - s * 0.02, w, l * 2);
-  g.fillRect(-l, -w / 2 - s * 0.02, l * 2, w);
+  g.fillStyle = "#F6D6D9";
+  g.beginPath();
+  g.roundRect(-w * 0.38, -h * 0.8, w * 0.76, h * 1.6, h * 0.3);
+  g.fill();
+  g.fillStyle = "rgba(255,255,255,.6)";
+  for (const xx of [-w * 0.72, -w * 0.55, w * 0.55, w * 0.72])
+    for (const yy of [-h * 0.35, h * 0.35]) {
+      g.beginPath();
+      g.arc(xx, yy, s * 0.02, 0, Math.PI * 2);
+      g.fill();
+    }
   g.restore();
 }
 function drawPlayer(g: G, x: number, y: number, s: number, face: Dir, mouth: number, emblem: string, fw: boolean, time: number) {
@@ -1546,7 +1559,7 @@ function LegendIcon({ kind, dim = false }: { kind: LegendKind; dim?: boolean }) 
 
 const BASICS: { kind: LegendKind; title: string; text: string }[] = [
   { kind: "byte", title: "Byte · +10", text: "Collect them all to clear the level." },
-  { kind: "patch", title: "Security patch · +50", text: "Bugs become fixable for a few seconds (+200 each)." },
+  { kind: "patch", title: "Security patch · +50", text: "Red bandage. Bugs become fixable for a few seconds (+200 each). It does not add shields." },
   { kind: "antivirus", title: "Antivirus · +50", text: "Viruses turn grey and can be destroyed for a few seconds (+300 each)." },
   { kind: "bug", title: "Bug", text: "Hunts you. Costs one shield." },
   { kind: "virus", title: "Virus", text: "Costs one shield, unless it is grey. Then you can destroy it." },
@@ -1723,7 +1736,7 @@ function GameModal({
       aria-modal="true"
       aria-label="Byte Muncher"
     >
-      <style>{`@keyframes bmToast{0%{opacity:0;transform:translateY(6px)}10%,75%{opacity:1;transform:none}100%{opacity:0}}.bm-toast{animation:bmToast 2.4s ease forwards}@media (prefers-reduced-motion:reduce){.bm-toast{animation:none}}`}</style>
+      <style>{`@keyframes bmToast{0%{opacity:0;transform:translateY(6px)}10%,75%{opacity:1;transform:none}100%{opacity:0}}.bm-toast{animation:bmToast 2.4s ease forwards}@keyframes bmPop{0%{transform:scale(1)}30%{transform:scale(1.25)}100%{transform:scale(1)}}.bm-pop{animation:bmPop .5s ease}@media (prefers-reduced-motion:reduce){.bm-toast{animation:none}}`}</style>
       <div className="mx-auto flex max-w-6xl flex-col gap-4 px-4 py-5 sm:py-8">
         <header className="flex flex-wrap items-end justify-between gap-3">
           <div className="min-w-0">
@@ -1751,7 +1764,7 @@ function GameModal({
               </b>
             </Stat>
             <Stat label="Shields">
-              <div className="flex h-7 items-center gap-1">
+              <div key={hud.lives} className="bm-pop flex h-7 items-center gap-1">
                 {Array.from({ length: MAX_LIVES }).map((_, i) => (
                   <i
                     key={i}
@@ -2030,7 +2043,7 @@ function GameModal({
                 style={{ background: C.fg, color: "#141A30", boxShadow: "0 20px 60px -20px rgba(255,209,102,.6)" }}
               >
                 <p className={`${display.className} text-xl leading-snug sm:text-2xl`}>You are a true cybersecurity defender!</p>
-                <p className="mt-1 text-sm">— AVA</p>
+                <p className="mt-1 text-sm font-semibold">— Ava ByteGuard</p>
                 <span
                   className="absolute hidden h-4 w-4 rotate-45 sm:block"
                   style={{ background: C.fg, left: -7, bottom: 26 }}
