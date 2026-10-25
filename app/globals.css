@@ -24,3 +24,14 @@ body {
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
 }
+
+/* AI readiness banner: night-scene motion */
+@keyframes arb-bob { 50% { transform: translateY(-5px); } }
+@keyframes arb-flicker { 50% { opacity: 0.7; } }
+@keyframes arb-twinkle { 50% { opacity: 0.2; } }
+.arb-bob { animation: arb-bob 3.2s ease-in-out infinite; }
+.arb-flicker { animation: arb-flicker 4s ease-in-out infinite; }
+.arb-twinkle { animation: arb-twinkle 3s ease-in-out infinite; }
+@media (prefers-reduced-motion: reduce) {
+  .arb-bob, .arb-flicker, .arb-twinkle { animation: none; }
+}
