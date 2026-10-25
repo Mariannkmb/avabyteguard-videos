@@ -39,9 +39,9 @@
 *{box-sizing:border-box}
 body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:16px;line-height:1.55}
 body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--surface)}
-.wrap{max-width:760px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:0 56px}
+.wrap{max-width:1120px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:0 56px}
 .bar{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--surface);border-bottom:1px solid var(--line)}
-.bar .in{max-width:760px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:10px;display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.bar .in{max-width:1120px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:10px;display:flex;align-items:center;gap:12px;flex-wrap:wrap}
 .brand{font-family:var(--display);font-weight:800;letter-spacing:.06em;font-size:18px}
 .brand span{color:var(--accent)}
 a.brand{color:var(--ink);text-decoration:none}
@@ -68,10 +68,10 @@ h1,h2,h3,h4{text-wrap:balance;margin:0}
 
 /* Intro night scene: a single committed night look, same in both themes */
 .scene{margin-top:20px;border-radius:18px;overflow:hidden;background:#0A1030;position:relative;color:#EEF0FA}
-.scene svg{display:block;width:100%;height:auto}
-.scene .copy{position:absolute;left:0;top:0;padding:clamp(18px,4vw,34px);display:grid;gap:10px;max-width:58%}
+.scene svg{display:block;width:100%;height:clamp(260px,36vw,420px)}
+.scene .copy{position:absolute;left:0;top:0;padding:clamp(18px,4vw,34px);display:grid;gap:10px;max-width:46%}
 .scene .copy .kicker{color:var(--lamp)}
-.scene h1{font-family:var(--display);font-weight:800;font-size:clamp(38px,8.5vw,80px);line-height:.9;text-transform:uppercase;color:#FFFFFF}
+.scene h1{font-family:var(--display);font-weight:800;font-size:clamp(34px,5.2vw,76px);line-height:.9;text-transform:uppercase;color:#FFFFFF}
 .fig{animation:bob 3.2s ease-in-out infinite}
 .fig.f2{animation-delay:-1s}.fig.f3{animation-delay:-2s}
 .glow{animation:flick 4s ease-in-out infinite}
@@ -79,7 +79,7 @@ h1,h2,h3,h4{text-wrap:balance;margin:0}
 @keyframes bob{50%{transform:translateY(-4px)}}
 @keyframes flick{50%{opacity:.75}}
 @keyframes tw{50%{opacity:.25}}
-@media (max-width:560px){.scene .copy{position:static;max-width:none;background:#0A1030;padding-bottom:6px}}
+@media (max-width:560px){.scene .copy{position:static;max-width:none;background:#0A1030;padding-bottom:6px}.scene h1{font-size:clamp(38px,11vw,56px)}.scene svg{height:230px}}
 .lead{margin:22px 0 0;max-width:62ch;font-size:18px}
 .startrow{margin-top:18px}
 .covers{margin-top:34px;display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,220px),1fr));gap:12px}
@@ -102,6 +102,7 @@ h1,h2,h3,h4{text-wrap:balance;margin:0}
 .ticket{margin-top:24px;background:var(--surface);border:1px solid var(--line);border-radius:18px;overflow:hidden}
 .sky{position:relative;color:#fff}
 .sky svg{display:block;width:100%;height:auto}
+@media (max-width:700px){.sky svg{height:150px}}
 .sky .photo{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
 .sky .photo~.lbl{text-shadow:0 1px 8px rgba(0,0,0,.6)}
 .vig{animation:rise .5s ease-out both}
@@ -115,6 +116,15 @@ h1,h2,h3,h4{text-wrap:balance;margin:0}
 .strip i{height:6px;border-radius:3px;background:var(--line)}
 .strip i.cur{background:var(--ink)}
 .tbody{padding:18px;display:grid;gap:18px}
+@media (min-width:960px){
+  .tbody{grid-template-columns:minmax(0,5fr) minmax(0,6fr);column-gap:36px;padding:26px 28px;align-items:start}
+  .tbody .scenario{grid-column:1;grid-row:1;font-size:23px}
+  .tbody .feedback{grid-column:1;grid-row:2}
+  .tbody .opts{grid-column:2;grid-row:1 / span 2}
+  .tbody .na{grid-column:2;grid-row:3}
+  .tbody .nav{grid-column:1 / -1;grid-row:4}
+  .lead{font-size:19px}
+}
 .scenario{font-size:clamp(18px,2.6vw,21px);line-height:1.45;margin:0;max-width:60ch}
 .opts{display:grid;gap:10px}
 .opt{text-align:left;width:100%;display:grid;grid-template-columns:30px 1fr;gap:12px;align-items:start;background:var(--bg);color:var(--ink);border:1.5px solid transparent;border-radius:14px;padding:13px 15px;font:16px/1.45 var(--body);cursor:pointer;transition:border-color .15s,transform .15s}
@@ -423,15 +433,15 @@ function heroScene(){
   const G=272,F=t().figs;
   const human=(x,fill)=>`<circle cx="${x}" cy="${G-60}" r="10" fill="${fill}"/><path d="M${x-14} ${G}L${x-12} ${G-40}Q${x} ${G-50} ${x+12} ${G-40}L${x+14} ${G}Z" fill="${fill}"/>`;
   const hex=(x,y,r)=>Array.from({length:6},(_,i)=>{const a=Math.PI/3*i+Math.PI/6;return(x+r*Math.cos(a)).toFixed(1)+","+(y+r*Math.sin(a)).toFixed(1);}).join(" ");
-  const lab=(x,s)=>`<text x="${x}" y="${G+24}" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="12" fill="#B9C0E2">${s}</text>`;
-  return `<svg viewBox="0 0 720 320" role="img" aria-label="${F.join(", ")}">
+  const lab=(x,s)=>`<text x="${x}" y="${G+24}" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="11" fill="#B9C0E2">${s}</text>`;
+  return `<svg viewBox="-300 0 1020 320" preserveAspectRatio="xMaxYMax slice" role="img" aria-label="${F.join(", ")}">
    <defs><linearGradient id="nsky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#070B24"/><stop offset="1" stop-color="#1D2559"/></linearGradient>
    <radialGradient id="halo" cx=".5" cy=".5" r=".5"><stop offset="0" stop-color="#F2B14C" stop-opacity=".55"/><stop offset="1" stop-color="#F2B14C" stop-opacity="0"/></radialGradient>
    <radialGradient id="orb" cx=".5" cy=".5" r=".5"><stop offset="0" stop-color="#9FE8FF"/><stop offset="1" stop-color="#9FE8FF" stop-opacity="0"/></radialGradient></defs>
-   <rect width="720" height="320" fill="url(#nsky)"/>
-   ${starsSVG(55,720,200,7)}
+   <rect x="-300" width="1020" height="320" fill="url(#nsky)"/>
+   <g transform="translate(-300 0)">${starsSVG(80,1020,210,7)}</g>
    <circle cx="660" cy="58" r="22" fill="#F4F0DC"/><circle cx="671" cy="51" r="20" fill="#0B1029"/>
-   <rect y="${G}" width="720" height="${320-G}" fill="#0E1440"/>
+   <rect x="-300" y="${G}" width="1020" height="${320-G}" fill="#0E1440"/>
    <ellipse class="glow" cx="600" cy="190" rx="120" ry="110" fill="url(#halo)"/>
    <polygon class="glow" points="560,${G} 640,${G} 470,320 230,320" fill="#F2B14C" opacity=".22"/>
    <rect x="556" y="118" width="88" height="${G-118}" fill="#2A3270"/>
@@ -440,9 +450,9 @@ function heroScene(){
    <circle cx="667" cy="196" r="3" fill="#F2B14C"/>
    <circle cx="600" cy="104" r="5" fill="#FFE2A8"/>
    <text x="600" y="215" text-anchor="middle" font-family="Big Shoulders Display, sans-serif" font-weight="800" font-size="64" fill="#1B1606" opacity=".85">?</text>
-   <g class="fig">${human(330,"#4A5596")}${lab(330,F[0])}</g>
-   <g class="fig f2"><polygon points="${hex(420,G-60,12)}" fill="#93A2FF"/><rect x="406" y="${G-44}" width="28" height="44" rx="7" fill="#4A5596"/><circle cx="420" cy="${G-60}" r="3" fill="#0A1030"/><line x1="420" y1="${G-72}" x2="420" y2="${G-80}" stroke="#93A2FF" stroke-width="2"/><circle cx="420" cy="${G-82}" r="2.5" fill="#93A2FF"/>${lab(420,F[1])}</g>
-   <g class="fig f3">${human(505,"#4A5596")}<circle cx="526" cy="${G-56}" r="13" fill="url(#orb)"/><circle cx="526" cy="${G-56}" r="4" fill="#CFF4FF"/>${lab(505,F[2])}</g>
+   <g class="fig">${human(282,"#4A5596")}${lab(282,F[0])}</g>
+   <g class="fig f2"><polygon points="${hex(385,G-60,12)}" fill="#93A2FF"/><rect x="371" y="${G-44}" width="28" height="44" rx="7" fill="#4A5596"/><circle cx="385" cy="${G-60}" r="3" fill="#0A1030"/><line x1="385" y1="${G-72}" x2="385" y2="${G-80}" stroke="#93A2FF" stroke-width="2"/><circle cx="385" cy="${G-82}" r="2.5" fill="#93A2FF"/>${lab(385,F[1])}</g>
+   <g class="fig f3">${human(488,"#4A5596")}<circle cx="509" cy="${G-56}" r="13" fill="url(#orb)"/><circle cx="509" cy="${G-56}" r="4" fill="#CFF4FF"/>${lab(488,F[2])}</g>
   </svg>`;
 }
 
@@ -531,14 +541,14 @@ const VIG={
 function skyBand(q){
   const [hh,mm]=q.time.split(":").map(Number),h=hh+mm/60,[top,bot]=skyAt(h),night=h<6.4,id=q.time.replace(":","");
   const x=40+(Math.min(h,16.5)-3)/13.5*250,y=120-Math.sin(Math.PI*(x-40)/250)*90;
-  const r=rnd(hh*60+mm);let city="";let cx=0;while(cx<600){const w=18+r()*34,ht=8+r()*20;city+=`<rect x="${cx.toFixed(0)}" y="${(190-ht).toFixed(0)}" width="${w.toFixed(0)}" height="${ht.toFixed(0)}"/>`;cx+=w+2;}
+  const r=rnd(hh*60+mm);let city="";let cx=-400;while(cx<600){const w=18+r()*34,ht=8+r()*20;city+=`<rect x="${cx.toFixed(0)}" y="${(190-ht).toFixed(0)}" width="${w.toFixed(0)}" height="${ht.toFixed(0)}"/>`;cx+=w+2;}
   const body=night?`<circle cx="${x}" cy="${y}" r="12" fill="#F4F0DC"/><circle cx="${x+6}" cy="${y-5}" r="11" fill="${top}"/>`
     :`<circle cx="${x}" cy="${y}" r="24" fill="#FFD27A" opacity=".25"/><circle cx="${x}" cy="${y}" r="13" fill="#FFD27A"/>`;
   const vig=VIG[q.time]?VIG[q.time]():"";
   const photo=PHOTO_BASE?`<img class="photo" src="${PHOTO_BASE}/${id}.jpg" alt="" onerror="this.remove()">`:"";
-  return `<div class="sky"><svg viewBox="0 0 600 190" aria-hidden="true">
+  return `<div class="sky"><svg viewBox="-400 0 1000 190" preserveAspectRatio="xMaxYMax slice" aria-hidden="true">
     <defs><linearGradient id="sg${id}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${top}"/><stop offset="1" stop-color="${bot}"/></linearGradient></defs>
-    <rect width="600" height="190" fill="url(#sg${id})"/>${night?starsSVG(34,600,110,hh*7+mm):""}${body}
+    <rect x="-400" width="1000" height="190" fill="url(#sg${id})"/>${night?`<g transform="translate(-400 0)">${starsSVG(56,1000,110,hh*7+mm)}</g>`:""}${body}
     <g fill="#000" opacity=".22">${city}</g>
     <g class="vig" transform="translate(318 22)">${vig}</g></svg>${photo}
     <div class="lbl">${icon(q.d)}<div><div class="time">${q.time}</div><div class="dn">${dom(q.d).name[lang]}</div></div></div></div>`;

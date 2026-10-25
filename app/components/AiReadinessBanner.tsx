@@ -32,6 +32,14 @@ function Person({ x, fill = "#4A5596" }: { x: number; fill?: string }) {
   );
 }
 
+function Label({ x, children }: { x: number; children: string }) {
+  return (
+    <text x={x} y={GROUND + 30} textAnchor="middle" fontSize="15" fontFamily="ui-monospace, Menlo, monospace" fill="#C3C9E8">
+      {children}
+    </text>
+  );
+}
+
 function NightScene({ id, viewBox, className }: { id: string; viewBox: string; className: string }) {
   const door = 1010;
   return (
@@ -93,6 +101,7 @@ function NightScene({ id, viewBox, className }: { id: string; viewBox: string; c
       <g className="arb-bob">
         <Person x={735} />
       </g>
+      <Label x={735}>Human</Label>
       {/* AI agent */}
       <g className="arb-bob" style={{ animationDelay: "-1s" }}>
         <polygon points={hex(830, GROUND - 62, 13)} fill="#93A2FF" />
@@ -101,12 +110,14 @@ function NightScene({ id, viewBox, className }: { id: string; viewBox: string; c
         <circle cx="830" cy={GROUND - 87} r="2.8" fill="#93A2FF" />
         <rect x="815" y={GROUND - 45} width="30" height="45" rx="8" fill="#4A5596" />
       </g>
+      <Label x={830}>AI agent</Label>
       {/* human using AI */}
       <g className="arb-bob" style={{ animationDelay: "-2s" }}>
         <Person x={925} />
         <circle cx="948" cy={GROUND - 58} r="14" fill={`url(#arb-orb-${id})`} />
         <circle cx="948" cy={GROUND - 58} r="4.5" fill="#CFF4FF" />
       </g>
+      <Label x={925}>Human + AI</Label>
     </svg>
   );
 }
