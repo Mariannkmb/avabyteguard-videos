@@ -24,9 +24,21 @@ export const C = {
 };
 
 /* ================= levels ================= */
+const PALETTE = C; // dark arcade palette, aliased so components can switch themes
+// light theme used by Zone Guard (same keys as C)
+export const LIGHT = {
+  ...C,
+  ink: "#FBFAF7",
+  panel: "#FFFFFF",
+  line: "#E7E2D9",
+  fg: "#2A2340",
+  muted: "#7A7387",
+  byte: "#1E9AA6",
+  gold: "#B07D12",
+};
 export const LEVELS = 5;
 // Test shortcuts: only on your Mac (npm run dev) or in the preview build, never on the published site
-const TEST_MODE = process.env.NODE_ENV === "development" || process.env.NEXT_PUBLIC_BM_TEST === "1";
+export const TEST_MODE = process.env.NODE_ENV === "development" || process.env.NEXT_PUBLIC_BM_TEST === "1";
 // Boards grow with the levels: 11x11, 13x13, then three 15x15 networks
 const MAZES = [
   [
@@ -1523,12 +1535,15 @@ export function NameEntry({
   level,
   time,
   submit,
+  light = false,
 }: {
   score: number;
   level: number;
   time?: number;
   submit: (r: Row) => Promise<number>;
+  light?: boolean;
 }) {
+  const P = light ? LIGHT : C;
   const [name, setName] = useState(() => {
     try {
       return localStorage.getItem("bm-name") || "";
@@ -1541,7 +1556,7 @@ export function NameEntry({
   if (score <= 0) return null;
   if (state === "done")
     return (
-      <p className="text-sm" style={{ color: C.byte }}>
+      <p className="text-sm" style={{ color: P.byte }}>
         {place > 0 ? `Saved. You are #${place} in the Top defenders.` : "Saved."}
       </p>
     );
@@ -1571,13 +1586,13 @@ export function NameEntry({
         placeholder="Your name"
         autoComplete="nickname"
         className="min-w-0 flex-1 rounded-md px-3 py-2 text-[15px] outline-none focus:ring-2"
-        style={{ background: "#0B0F1E", border: "1px solid #2A3354", color: C.fg }}
+        style={{ background: light ? "#FFFFFF" : "#0B0F1E", border: `1px solid ${light ? "#DDD7CC" : "#2A3354"}`, color: P.fg }}
       />
       <button
         type="submit"
         disabled={state === "saving" || !name.trim()}
         className="rounded-md px-4 py-2 text-sm font-semibold uppercase tracking-wider disabled:opacity-50"
-        style={{ boxShadow: "inset 0 0 0 1px #2A3354", color: C.fg }}
+        style={{ boxShadow: `inset 0 0 0 1px ${light ? "#DDD7CC" : "#2A3354"}`, color: P.fg }}
       >
         {state === "saving" ? "Saving…" : "Save score"}
       </button>
@@ -1704,20 +1719,26 @@ export function Leaderboard({
   highlight,
   limit = TOP,
   game = "patchman",
+  compact = false,
+  light = false,
 }: {
   board: Board;
   highlight?: string;
   limit?: number;
   game?: GameId;
+  compact?: boolean;
+  light?: boolean;
 }) {
+  const C = light ? LIGHT : PALETTE;
   const zg = game === "zoneguard";
+  const txt = compact ? "text-[12px]" : "text-[13px]";
   return (
     <div className="flex flex-col gap-2">
       <div className="flex items-baseline justify-between gap-2">
-        <h3 className={`${display.className} text-sm tracking-widest`} style={{ color: C.muted }}>
+        <h3 className={`${display.className} ${compact ? "text-xs" : "text-sm"} tracking-widest`} style={{ color: C.muted }}>
           TOP DEFENDERS
         </h3>
-        <span className="text-[11px] uppercase tracking-[0.12em]" style={{ color: C.muted }}>
+        <span className="text-[10px] uppercase tracking-[0.12em]" style={{ color: C.muted }}>
           {board.mode === "global" ? "Worldwide" : board.mode === "local" ? "On this device" : ""}
         </span>
       </div>
@@ -1732,15 +1753,15 @@ export function Leaderboard({
             : "No scores yet. Finish a run and save your name to claim the top spot."}
         </p>
       ) : (
-        <ol className={`${mono.className} flex flex-col text-[13px] tabular-nums`}>
+        <ol className={`${mono.className} flex flex-col ${txt} tabular-nums`}>
           {board.rows.slice(0, limit).map((r, i) => (
             <li
               key={`${r.name}-${r.score}-${i}`}
-              className={`grid ${zg ? "grid-cols-[22px_minmax(0,1fr)_auto_auto_auto]" : "grid-cols-[22px_minmax(0,1fr)_auto_auto]"} items-center gap-2 border-b py-1`}
+              className={`grid ${zg ? "grid-cols-[22px_minmax(0,1fr)_auto_auto_auto]" : "grid-cols-[22px_minmax(0,1fr)_auto_auto]"} items-center gap-2 border-b ${compact ? "py-0.5" : "py-1"}`}
               style={{ borderColor: C.line, color: r.name === highlight ? C.gold : C.fg }}
             >
               <span className="font-bold" style={{ color: MEDALS[i] ?? C.muted }}>{i + 1}</span>
-              <span className={`${body.className} truncate text-[14px]`}>{r.name}</span>
+              <span className={`${body.className} truncate ${compact ? "text-[13px]" : "text-[14px]"}`}>{r.name}</span>
               {zg ? (
                 <>
                   <span style={{ color: C.muted }}>
@@ -1753,7 +1774,7 @@ export function Leaderboard({
                   L{r.level}
                 </span>
               )}
-              <span className="min-w-[56px] text-right">{r.score.toLocaleString("en-US")}</span>
+              <span className={`${compact ? "min-w-[44px]" : "min-w-[56px]"} text-right`}>{r.score.toLocaleString("en-US")}</span>
             </li>
           ))}
         </ol>
@@ -2127,7 +2148,9 @@ function GameModal({
           </div>
 
           <aside className="flex min-w-0 flex-col gap-5">
-            <Leaderboard board={board} highlight={me} />
+            <div className="rounded-xl p-3" style={{ background: "rgba(6,9,18,.5)", border: `1px solid ${C.line}` }}>
+              <Leaderboard board={board} highlight={me} compact />
+            </div>
 
             <div className="flex flex-col gap-2">
               <h3 className={`${display.className} text-sm tracking-widest`} style={{ color: C.muted }}>
@@ -2346,7 +2369,7 @@ export default function ByteMuncher() {
         <div className="mb-3 text-[13px] tracking-wide" style={{ color: C.muted }}>
           by AvaByteGuard
         </div>
-        <div className="grid items-center gap-6 md:grid-cols-[minmax(0,1fr)_200px] lg:grid-cols-[minmax(0,1fr)_200px_280px]">
+        <div className="grid items-center gap-6 md:grid-cols-[minmax(0,1fr)_200px]">
           <div className="min-w-0">
             <p className="mb-4 max-w-[60ch] text-gray-300">
               A mini cybersecurity arcade game. Collect bytes, avoid bugs, and do not touch the viruses. Unlock backups, IDS
@@ -2378,12 +2401,6 @@ export default function ByteMuncher() {
           >
             <PatchPreview />
           </button>
-          <div
-            className="min-w-0 self-start rounded-xl p-4 md:col-span-2 lg:col-span-1"
-            style={{ background: "rgba(6,9,18,.6)", border: `1px solid ${C.line}` }}
-          >
-            <Leaderboard board={board} limit={5} />
-          </div>
         </div>
       </div>
 
