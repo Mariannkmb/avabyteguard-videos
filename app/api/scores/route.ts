@@ -1,4 +1,4 @@
-// ByteGuard-Man leaderboard (storage key keeps its original name so saved scores are kept).
+// Patch-Man leaderboard (storage key keeps its original name so saved scores are kept).
 // Works with any Upstash Redis database (free tier is enough). On Vercel, add one from
 // Storage → Marketplace → Upstash Redis; it sets KV_REST_API_URL and KV_REST_API_TOKEN for you.
 // Without those variables this route answers 503 and the game keeps scores on each player's device.
