@@ -1293,22 +1293,36 @@ function createGame(cv: HTMLCanvasElement, onHud: (h: Hud) => void) {
       togglePause();
     }
   }
+  // swipe reacts while the finger is still moving (no need to lift it), and keeps steering as you drag
   let sx = 0,
-    sy = 0;
+    sy = 0,
+    swiping = false;
   const onDown = (e: PointerEvent) => {
+    swiping = true;
+    sx = e.clientX;
+    sy = e.clientY;
+    try {
+      cv.setPointerCapture(e.pointerId);
+    } catch {}
+  };
+  const onMove = (e: PointerEvent) => {
+    if (!swiping) return;
+    const dx = e.clientX - sx,
+      dy = e.clientY - sy;
+    if (Math.max(Math.abs(dx), Math.abs(dy)) < 14) return;
+    input(Math.abs(dx) > Math.abs(dy) ? (dx > 0 ? "right" : "left") : dy > 0 ? "down" : "up");
     sx = e.clientX;
     sy = e.clientY;
   };
-  const onUp = (e: PointerEvent) => {
-    const dx = e.clientX - sx,
-      dy = e.clientY - sy;
-    if (Math.max(Math.abs(dx), Math.abs(dy)) < 18) return;
-    input(Math.abs(dx) > Math.abs(dy) ? (dx > 0 ? "right" : "left") : dy > 0 ? "down" : "up");
+  const onUp = () => {
+    swiping = false;
   };
 
   window.addEventListener("keydown", onKey);
   cv.addEventListener("pointerdown", onDown);
+  cv.addEventListener("pointermove", onMove);
   cv.addEventListener("pointerup", onUp);
+  cv.addEventListener("pointercancel", onUp);
   const ro = new ResizeObserver(resize);
   ro.observe(cv);
   resize();
@@ -1348,7 +1362,9 @@ function createGame(cv: HTMLCanvasElement, onHud: (h: Hud) => void) {
       timers.forEach((t) => clearTimeout(t));
       window.removeEventListener("keydown", onKey);
       cv.removeEventListener("pointerdown", onDown);
+      cv.removeEventListener("pointermove", onMove);
       cv.removeEventListener("pointerup", onUp);
+      cv.removeEventListener("pointercancel", onUp);
       ro.disconnect();
       actx?.close().catch(() => {});
     },
@@ -1624,6 +1640,87 @@ function Leaderboard({ board, highlight, limit = 10 }: { board: Board; highlight
   );
 }
 
+/* ================= mobile joystick ================= */
+function Joystick({ onDir }: { onDir: (d: Dir) => void }) {
+  const ref = useRef<HTMLDivElement>(null);
+  const down = useRef(false);
+  const last = useRef<Dir | null>(null);
+  const [active, setActive] = useState<Dir | null>(null);
+  const handle = (x: number, y: number) => {
+    const el = ref.current;
+    if (!el) return;
+    const r = el.getBoundingClientRect();
+    const dx = x - (r.left + r.width / 2),
+      dy = y - (r.top + r.height / 2);
+    if (Math.hypot(dx, dy) < r.width * 0.12) return; // small dead zone in the middle
+    const d: Dir = Math.abs(dx) > Math.abs(dy) ? (dx > 0 ? "right" : "left") : dy > 0 ? "down" : "up";
+    if (d === last.current) return;
+    last.current = d;
+    setActive(d);
+    onDir(d);
+    try {
+      navigator.vibrate?.(8);
+    } catch {}
+  };
+  const release = () => {
+    down.current = false;
+    last.current = null;
+    setActive(null);
+  };
+  const knob = { up: [0, -34], down: [0, 34], left: [-34, 0], right: [34, 0] } as const;
+  const [kx, ky] = active ? knob[active] : [0, 0];
+  const arrows: [Dir, string, string][] = [
+    ["up", "▲", "top-2 left-1/2 -translate-x-1/2"],
+    ["down", "▼", "bottom-2 left-1/2 -translate-x-1/2"],
+    ["left", "◀", "left-2 top-1/2 -translate-y-1/2"],
+    ["right", "▶", "right-2 top-1/2 -translate-y-1/2"],
+  ];
+  return (
+    <div
+      ref={ref}
+      role="group"
+      aria-label="Direction pad"
+      className="relative h-[168px] w-[168px] touch-none select-none rounded-full"
+      style={{
+        background: "radial-gradient(circle at 50% 40%, #1E2850, #10152A 70%)",
+        boxShadow: "inset 0 0 0 1px #2A3354, 0 10px 30px -12px rgba(230,57,70,.5)",
+      }}
+      onPointerDown={(e) => {
+        e.preventDefault();
+        down.current = true;
+        try {
+          e.currentTarget.setPointerCapture(e.pointerId);
+        } catch {}
+        handle(e.clientX, e.clientY);
+      }}
+      onPointerMove={(e) => down.current && handle(e.clientX, e.clientY)}
+      onPointerUp={release}
+      onPointerCancel={release}
+    >
+      {arrows.map(([d, label, pos]) => (
+        <span
+          key={d}
+          aria-hidden="true"
+          className={`absolute ${pos} text-xl`}
+          style={{ color: active === d ? C.red : "#5A6488", textShadow: active === d ? `0 0 10px ${C.red}` : "none" }}
+        >
+          {label}
+        </span>
+      ))}
+      <span
+        aria-hidden="true"
+        className="absolute top-1/2 left-1/2 h-16 w-16 rounded-full"
+        style={{
+          transform: `translate(calc(-50% + ${kx}px), calc(-50% + ${ky}px))`,
+          transition: "transform 80ms ease-out",
+          background: active ? `radial-gradient(circle at 40% 35%, #FF7A84, ${C.red})` : "radial-gradient(circle at 40% 35%, #3A4570, #222B4D)",
+          boxShadow: active ? `0 0 18px ${C.red}` : "inset 0 0 0 1px #2A3354",
+        }}
+      />
+    </div>
+  );
+}
+
 /* ================= modal ================= */
 function GameModal({
   onClose,
@@ -1736,7 +1833,7 @@ function GameModal({
       aria-modal="true"
       aria-label="Byte Muncher"
     >
-      <style>{`@keyframes bmToast{0%{opacity:0;transform:translateY(6px)}10%,75%{opacity:1;transform:none}100%{opacity:0}}.bm-toast{animation:bmToast 2.4s ease forwards}@keyframes bmPop{0%{transform:scale(1)}30%{transform:scale(1.25)}100%{transform:scale(1)}}.bm-pop{animation:bmPop .5s ease}@media (prefers-reduced-motion:reduce){.bm-toast{animation:none}}`}</style>
+      <style>{`@keyframes bmToast{0%{opacity:0;transform:translateY(6px)}10%,75%{opacity:1;transform:none}100%{opacity:0}}.bm-toast{animation:bmToast 2.4s ease forwards}@keyframes bmPop{0%{transform:scale(1)}30%{transform:scale(1.25)}100%{transform:scale(1)}}.bm-pop{animation:bmPop .5s ease}.bm-board{width:min(100%,600px,66vh)}@media (pointer:coarse){.bm-board{width:min(100%,52vh)}}@media (prefers-reduced-motion:reduce){.bm-toast{animation:none}}`}</style>
       <div className="mx-auto flex max-w-6xl flex-col gap-4 px-4 py-5 sm:py-8">
         <header className="flex flex-wrap items-end justify-between gap-3">
           <div className="min-w-0">
@@ -1856,7 +1953,7 @@ function GameModal({
             className="flex min-w-0 flex-col gap-3 rounded-2xl p-3 sm:p-4"
             style={{ background: C.panel, border: `1px solid ${C.line}`, boxShadow: "0 30px 80px -30px rgba(230,57,70,.25)" }}
           >
-            <div className="relative mx-auto aspect-square overflow-hidden rounded-lg" style={{ width: "min(100%, 600px, 66vh)", background: "#060912" }}>
+            <div className="bm-board relative mx-auto aspect-square overflow-hidden rounded-lg" style={{ background: "#060912" }}>
               <canvas ref={canvasRef} className="block h-full w-full touch-none select-none" aria-label="Byte Muncher game board" />
               <div
                 className="pointer-events-none absolute inset-0"
@@ -1947,28 +2044,11 @@ function GameModal({
               </div>
             </div>
 
-            <div className="hidden grid-cols-[repeat(3,56px)] grid-rows-[repeat(2,48px)] justify-center gap-1.5 pointer-coarse:grid">
-              {(
-                [
-                  ["up", "▲", "col-start-2 row-start-1"],
-                  ["left", "◀", "col-start-1 row-start-2"],
-                  ["down", "▼", "col-start-2 row-start-2"],
-                  ["right", "▶", "col-start-3 row-start-2"],
-                ] as const
-              ).map(([d, label, p]) => (
-                <button
-                  key={d}
-                  aria-label={d}
-                  onPointerDown={(e) => {
-                    e.preventDefault();
-                    gameRef.current?.input(d);
-                  }}
-                  className={`${p} rounded-md text-lg`}
-                  style={{ background: "#1A2140", boxShadow: "inset 0 0 0 1px #2A3354" }}
-                >
-                  {label}
-                </button>
-              ))}
+            <div className="hidden flex-col items-center gap-1 pointer-coarse:flex">
+              <Joystick onDir={(d) => gameRef.current?.input(d)} />
+              <span className="text-[12px]" style={{ color: C.muted }}>
+                Keep your thumb on the pad and slide it to steer
+              </span>
             </div>
           </section>
 
