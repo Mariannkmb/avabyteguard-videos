@@ -195,6 +195,11 @@ h1,h2,h3,h4{text-wrap:balance;margin:0}
 .col ul{margin:0;padding-left:18px;display:grid;gap:8px;font-size:15px}
 .col li small{display:block;color:var(--muted);font-size:11px;font-family:var(--mono)}
 .keep{font-size:15px;color:var(--muted)}
+.yours{display:grid;grid-template-columns:10px 1fr;gap:10px;align-items:start;background:var(--bg);border-radius:10px;padding:10px 12px;max-width:64ch}
+.yours .dot{margin-top:7px}
+.yours .yt{display:block;font:600 11px var(--mono);letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+.yours q{font-style:italic;quotes:"“" "”"}
+:root[lang="es"] .yours q{quotes:"«" "»"}
 .tailor{display:grid;gap:8px;color:var(--muted);font-size:15px}.tailor p{margin:0}.tailor div{display:flex;flex-wrap:wrap;gap:6px}
 .tier{font:600 11px var(--mono);letter-spacing:.04em;padding:3px 9px;border-radius:999px;white-space:nowrap}
 .tier.t0{background:color-mix(in srgb,var(--bad) 16%,transparent);color:var(--bad)}
@@ -392,7 +397,7 @@ const T = {
   thesis:"<b>Built on three questions every request should answer:</b> is it a human, an AI agent, or a human using AI (autonomy)? What is it allowed to do (authority)? Can we prove who it is (authentication)?",
   scen:"Scenario",of:"of",next:"Next scenario",finish:"See my shift report",back:"Back",keys:"Keys 1–4 to answer",
   out:["Undetected","Detected late","Slowed down","Contained"],
-  report:"Shift report",overall:"Overall readiness",bydomain:"By domain",prio:"What to prioritise",why:"Why it matters",first:"First move",boardq:"Question for your board",
+  report:"Shift report",overall:"Overall readiness",bydomain:"By domain",prio:"What to prioritise",why:"Why it matters",first:"First move",youans:"Your answer at",boardq:"Question for your board",
   road:"Roadmap",now:"Now · 0–90 days",nextc:"Next · 3–6 months",later:"Later · 6–12 months",keep:"Keep and measure",
   copy:"Copy summary",copied:"Summary copied",copyfail:"Copy blocked: select the text below instead.",pdf:"Save as PDF",retake:"Retake",
   levels:[["Exposed","AI-driven attacks would probably go unnoticed. Start with visibility: you can't protect identities, APIs or AI tools you can't see."],["Reactive","You would find out, but late. The gaps are ownership and speed."],["Defined","The foundations are in place. The next step is closing the gap between detecting and acting."],["Adaptive","A strong position. Focus on automation and on showing the value to the board."],["AI-ready","Ahead of most. Keep testing: attackers' AI keeps improving."]],
@@ -404,7 +409,7 @@ const T = {
   thesis:"<b>Basado en tres preguntas que toda petición debería responder:</b> ¿es una persona, un agente de IA o una persona usando IA (autonomía)? ¿Qué puede hacer (autoridad)? ¿Podemos probar quién es (autenticación)?",
   scen:"Escenario",of:"de",next:"Siguiente escenario",finish:"Ver mi informe del turno",back:"Atrás",keys:"Teclas 1–4 para responder",
   out:["Sin detectar","Detectado tarde","Frenado","Contenido"],
-  report:"Informe del turno",overall:"Preparación global",bydomain:"Por dominio",prio:"Qué priorizar",why:"Por qué importa",first:"Primer paso",boardq:"Pregunta para tu directorio",
+  report:"Informe del turno",overall:"Preparación global",bydomain:"Por dominio",prio:"Qué priorizar",why:"Por qué importa",first:"Primer paso",youans:"Tu respuesta a las",boardq:"Pregunta para tu directorio",
   road:"Roadmap",now:"Ahora · 0–90 días",nextc:"Después · 3–6 meses",later:"Más adelante · 6–12 meses",keep:"Mantener y medir",
   copy:"Copiar resumen",copied:"Resumen copiado",copyfail:"No se pudo copiar: selecciona el texto de abajo.",pdf:"Guardar en PDF",retake:"Repetir",
   levels:[["Expuesta","Un ataque guiado por IA probablemente pasaría desapercibido. Empieza por la visibilidad: no puedes proteger identidades, APIs ni herramientas de IA que no ves."],["Reactiva","Te enterarías, pero tarde. Las brechas están en la responsabilidad y la velocidad."],["Definida","Las bases están puestas. El siguiente paso es acortar la distancia entre detectar y actuar."],["Adaptativa","Una posición sólida. Céntrate en automatizar y en mostrar el valor al directorio."],["Preparada para la IA","Por delante de la mayoría. Sigue probando: la IA de los atacantes también mejora."]],
@@ -423,6 +428,10 @@ Object.assign(T.es,{figs:["Persona","Agente de IA","Persona + IA"],
   path:["Acceso","Movimiento lateral","Acción","Salida de datos"],pathcap:"Dónde se detuvo el ataque",
   tl:"Tu turno, escenario a escenario",legend:"Resultado",na:"No aplica: no tenemos esto",tiers:["Inicial","En desarrollo","Avanzado"],tailored:"Hecho a partir de tus respuestas: los tres bloques con menor puntuación, cada uno desde donde está hoy.",nachip:"No aplica",nanote:"Omitido. No cuenta en tu puntuación. Aun así, vale la pena confirmarlo: agentes, APIs y servicios en la nube suelen llegar a través de proveedores y herramientas SaaS antes de que TI los planifique."});
 
+/* the weakest answered scenario of a block, to quote it back in the report */
+const weakest=id=>{let best=null;Q.forEach((q,i)=>{if(q.d!==id)return;const v=val(i);if(v==null)return;if(!best||v<best.v)best={i,v};});return best;};
+const quoteAns=id=>{const w=weakest(id);if(!w)return "";const q=Q[w.i],o=q.o[answers[w.i]];
+  return `<div class="yours"><span class="dot" style="background:${OUTC[w.v]}"></span><div><span class="yt">${t().youans} ${q.time}</span><q>${lang==="en"?o[1]:o[2]}</q></div></div>`;};
 const STG=["now","next","later","test","report"];
 const tier=p=>p<34?0:p<67?1:2;
 const plan=x=>[0,1,2].map(k=>x.d[STG[tier(x.pct)+k]][lang]);
@@ -691,8 +700,8 @@ function results(){
     <div class="sec"><h3>${t().prio}</h3>
       ${prio.map((p,i)=>`<div class="prio">${icon(p.d.id)}<div class="c">
         <div class="top"><span class="rank">0${i+1}</span><h4>${p.d.name[lang]}</h4><span class="meta">${p.pct}/100</span><span class="tier t${tier(p.pct)}">${t().tiers[tier(p.pct)]}</span></div>
-        <p><b>${t().why}.</b> ${p.d.why[lang]}</p><p><b>${t().first}.</b> ${plan(p)[0]}</p>
-        <p class="q">${t().boardq}: “${p.d.board[lang]}”</p>
+        ${quoteAns(p.d.id)}<p><b>${t().why}.</b> ${p.d.why[lang]}</p><p><b>${t().first}.</b> ${plan(p)[0]}</p>
+        <p class="q">${t().boardq}: ${lang==="es"?"«":"“"}${p.d.board[lang]}${lang==="es"?"»":"”"}</p>
         <div class="fw">${p.d.fw.map(f=>`<span>${f}</span>`).join("")}</div></div></div>`).join("")}
     </div>
     <div class="sec"><h3>${t().road}</h3>
