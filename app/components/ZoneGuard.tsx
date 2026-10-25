@@ -294,7 +294,8 @@ const sfx = {
 };
 
 /* ---------- Ava's lines ---------- */
-const HELLO = "Hi, I'm Ava! Each color is a network zone. Tap a tile once for ✕, twice for a sensor.";
+const HELLO = "Hi, I'm Ava! Each color is a network zone. Tap a tile once for ✕, twice to place a sensor.";
+const NUDGE = "Tip: tap a tile twice to place a sensor. One tap is only an ✕.";
 const ON_SENSOR = ["Sensor online!", "Nice spot!", "That zone feels safer already.", "Keep going, analyst!", "Ooh, good placement."];
 const ON_CROSS = ["Good thinking. ✕ means no sensor here.", "Ruling cells out is half the job.", "Drag your finger to mark many ✕ at once."];
 const ON_REMOVE = ["Rethinking is part of security.", "No worries, try another spot."];
@@ -502,7 +503,11 @@ function ZoneGuardModal({
     next[r][c] = (next[r][c] + 1) % 3; // empty → ✕ → sensor → empty
     if (next[r][c] === CROSS) {
       sfx.cross();
-      if (marksRef.current.flat().every((m) => m !== CROSS)) setBubble(pick(ON_CROSS));
+      const crosses = next.flat().filter((m) => m === CROSS).length;
+      const placed = next.flat().some((m) => m === SENSOR);
+      // only crossing tiles and no sensor yet? remind how sensors go in
+      if (!placed && crosses >= 4) setBubble(NUDGE);
+      else if (marksRef.current.flat().every((m) => m !== CROSS)) setBubble(pick(ON_CROSS));
     } else if (next[r][c] === SENSOR) {
       sfx.sensor();
       setBubble(pick(ON_SENSOR));
@@ -691,6 +696,27 @@ function ZoneGuardModal({
           className="flex flex-col items-center gap-3 rounded-2xl p-3 sm:p-4"
           style={{ background: L.panel, border: `1px solid ${L.line}`, boxShadow: "0 20px 50px -30px rgba(60,40,20,.25)" }}
         >
+          {/* always-visible how-to: what one and two taps do */}
+          <div className="flex flex-wrap items-center justify-center gap-x-4 gap-y-1.5 text-[13px]" style={{ color: L.fg }}>
+            <span className="flex items-center gap-1.5">
+              <span className="flex h-6 w-6 items-center justify-center" style={tile(ZONE_COLORS[0], 6)}>
+                <CrossIcon className="h-[62%] w-[62%]" />
+              </span>
+              <b>1 tap</b>
+              <span style={{ color: L.muted }}>no sensor here</span>
+            </span>
+            <span className="flex items-center gap-1.5">
+              <span className="flex h-6 w-6 items-center justify-center" style={tile(ZONE_COLORS[1], 6)}>
+                <SensorIcon className="h-[72%] w-[72%]" spin={false} />
+              </span>
+              <b>2 taps</b>
+              <span style={{ color: L.muted }}>place a sensor</span>
+            </span>
+            <span className="hidden items-center gap-1.5 sm:flex" style={{ color: L.muted }}>
+              3 taps clear · swipe to ✕ a row
+            </span>
+          </div>
+
           <div className="relative" style={{ width: "min(100%, 380px, 52vh)" }}>
             {/* sensor tray: what is left to deploy */}
             <div className="flex flex-col items-center">
