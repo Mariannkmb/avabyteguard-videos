@@ -631,7 +631,7 @@ function ZoneGuardModal({
         <div className="grid grid-cols-3 gap-2">
           {(
             [
-              ["zone", "1 sensor per network zone"],
+              ["zone", "1 sensor per network color zone"],
               ["line", "1 sensor per row and column"],
               ["touch", "Sensors can't touch, not even diagonally"],
             ] as const
@@ -983,7 +983,7 @@ export default function ZoneGuard() {
             Zone<span style={{ color: C.byte }}>Guard</span>
           </h3>
           <p className="mt-1 text-[13px] leading-snug text-gray-300">
-            Place one IDS sensor per zone, row and column, without letting two touch.
+            Place one IDS sensor per color zone, row and column, without letting two touch.
           </p>
           <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1">
             <button
