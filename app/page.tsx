@@ -3,6 +3,7 @@
 import { useState } from "react";
 import ByteMuncher from "./components/ByteMuncher";
 import ZoneGuard from "./components/ZoneGuard";
+import AiReadinessBanner from "./components/AiReadinessBanner";
 
 const videos = [
   { title: "AI found a flaw in 70% of websites. Is yours one of them?", id: "SWa85MEgfiA", type: "short", year: "2026" },
@@ -57,6 +58,10 @@ export default function Home() {
             About
           </a>
 
+          <a href="/ai-readiness" className="text-sm font-semibold text-[#F2B14C] hover:text-white">
+            AI Readiness
+          </a>
+
           <a href="#games" className="text-sm text-gray-300 hover:text-white">
             Games
           </a>
@@ -77,6 +82,8 @@ export default function Home() {
           </button>
         </div>
       </section>
+
+      <AiReadinessBanner />
 
       <section className="px-8 py-10 space-y-10">
         {years.map((year) => (
