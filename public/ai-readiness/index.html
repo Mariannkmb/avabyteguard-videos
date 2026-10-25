@@ -195,6 +195,11 @@ h1,h2,h3,h4{text-wrap:balance;margin:0}
 .col ul{margin:0;padding-left:18px;display:grid;gap:8px;font-size:15px}
 .col li small{display:block;color:var(--muted);font-size:11px;font-family:var(--mono)}
 .keep{font-size:15px;color:var(--muted)}
+.tailor{display:grid;gap:8px;color:var(--muted);font-size:15px}.tailor p{margin:0}.tailor div{display:flex;flex-wrap:wrap;gap:6px}
+.tier{font:600 11px var(--mono);letter-spacing:.04em;padding:3px 9px;border-radius:999px;white-space:nowrap}
+.tier.t0{background:color-mix(in srgb,var(--bad) 16%,transparent);color:var(--bad)}
+.tier.t1{background:color-mix(in srgb,var(--warn) 18%,transparent);color:var(--warn)}
+.tier.t2{background:color-mix(in srgb,var(--slow) 18%,transparent);color:var(--slow)}
 .copied{font:13px var(--mono);color:var(--ok)}
 .contact{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:16px 18px;display:grid;gap:10px}
 .contact p{margin:0;font-weight:700}
@@ -228,6 +233,8 @@ const D = [
   now:{en:"Inventory every agent, service account and API key, and give each one a named owner.",es:"Inventariar cada agente, cuenta de servicio y clave de API, y asignar a cada uno un responsable."},
   next:{en:"Give agents their own identities with scoped, short-lived tokens; record who each one acts for and what it may do.",es:"Dar a los agentes identidades propias con tokens acotados y de vida corta; registrar para quién actúa cada uno y qué puede hacer."},
   later:{en:"Human approval above set thresholds and continuous authorization for agent-to-agent requests.",es:"Aprobación humana por encima de umbrales y autorización continua entre agentes."},
+  test:{en:"Red-team an agent: try to make it act outside its delegation and measure how fast you can revoke it.",es:"Hacer red teaming a un agente: intentar que actúe fuera de su delegación y medir cuánto se tarda en revocarlo."},
+  report:{en:"Report to the board the share of agents with an owner, scoped permissions and short-lived tokens, quarter by quarter.",es:"Reportar al directorio el porcentaje de agentes con responsable, permisos acotados y tokens de vida corta, trimestre a trimestre."},
   board:{en:"How many non-human identities can act on our money or data, and who owns each one?",es:"¿Cuántas identidades no humanas pueden actuar sobre nuestro dinero o datos, y quién responde por cada una?"}},
  {id:"api", name:{en:"APIs",es:"APIs"},
   fw:["OWASP API Security Top 10"],
@@ -236,6 +243,8 @@ const D = [
   now:{en:"Build an API inventory from gateway and traffic logs; flag unowned and legacy endpoints.",es:"Construir un inventario de APIs desde el gateway y el tráfico; marcar endpoints sin responsable o heredados."},
   next:{en:"Test object-level authorization on revenue-critical APIs and detect abnormal behaviour per token.",es:"Probar la autorización por objeto en las APIs críticas para el negocio y detectar comportamiento anómalo por token."},
   later:{en:"Continuous API discovery and posture checks in the release pipeline; retire endpoints on a schedule.",es:"Descubrimiento continuo y revisión de postura de APIs en cada release; retirar endpoints según un calendario."},
+  test:{en:"Run AI-assisted API abuse tests (BOLA, slow scraping) against a production-like environment every quarter.",es:"Probar cada trimestre el abuso de APIs con IA (BOLA, scraping lento) en un entorno similar a producción."},
+  report:{en:"Report API exposure to the board: unknown endpoints found, time to retire them and abuse blocked.",es:"Reportar al directorio la exposición de APIs: endpoints desconocidos encontrados, tiempo hasta retirarlos y abuso bloqueado."},
   board:{en:"Which APIs expose customer data, and which ones did we forget?",es:"¿Qué APIs exponen datos de clientes y cuáles hemos olvidado?"}},
  {id:"cloud", name:{en:"Cloud & secrets",es:"Nube y secretos"},
   fw:["CIS Benchmarks","CSPM / CNAPP"],
@@ -244,6 +253,8 @@ const D = [
   now:{en:"Find and rotate long-lived keys; extend secrets scanning to chats, tickets and AI tools.",es:"Encontrar y rotar las claves de larga duración; ampliar el escaneo de secretos a chats, tickets y herramientas de IA."},
   next:{en:"Replace static keys with workload identity and separate test from production.",es:"Sustituir las claves estáticas por identidad de carga de trabajo y separar pruebas de producción."},
   later:{en:"Least privilege as code, attack-path analysis and automatic fixes for critical findings.",es:"Mínimo privilegio como código, análisis de rutas de ataque y corrección automática de hallazgos críticos."},
+  test:{en:"Leak a canary key on purpose and measure the minutes to detection and revocation.",es:"Filtrar a propósito una clave señuelo y medir los minutos hasta detectarla y revocarla."},
+  report:{en:"Report time-to-revoke and critical attack paths closed each quarter, and compare with your sector.",es:"Reportar el tiempo hasta revocar y las rutas de ataque críticas cerradas cada trimestre, y compararlo con el sector."},
   board:{en:"If one key leaked today, how many minutes until it's useless?",es:"Si hoy se filtrara una clave, ¿en cuántos minutos dejaría de servir?"}},
  {id:"aiapps", name:{en:"AI apps & data",es:"Apps de IA y datos"},
   fw:["OWASP Top 10 for LLM Apps","MITRE ATLAS"],
@@ -252,6 +263,8 @@ const D = [
   now:{en:"Create an AI inventory: apps, models, agents, plugins and the data each one touches.",es:"Crear un inventario de IA: apps, modelos, agentes, plugins y los datos que toca cada uno."},
   next:{en:"Red-team AI apps against prompt injection and cut their tool and data permissions.",es:"Hacer red teaming de las apps de IA contra inyección de prompts y recortar sus permisos sobre herramientas y datos."},
   later:{en:"AI security tests in every release and an approved AI platform with data guardrails.",es:"Pruebas de seguridad de IA en cada release y una plataforma de IA aprobada con controles de datos."},
+  test:{en:"Run a red-team exercise on your AI apps and agents with external testers, including indirect prompt injection.",es:"Hacer un ejercicio de red team sobre las apps y agentes de IA con evaluadores externos, incluida la inyección indirecta de prompts."},
+  report:{en:"Report AI risk to the board: inventory coverage, apps tested and incidents, mapped to NIST AI RMF or ISO/IEC 42001.",es:"Reportar el riesgo de IA al directorio: cobertura del inventario, apps probadas e incidentes, mapeados a NIST AI RMF o ISO/IEC 42001."},
   board:{en:"Which AI systems can read customer data or take actions, and who tested them?",es:"¿Qué sistemas de IA pueden leer datos de clientes o ejecutar acciones, y quién los probó?"}},
  {id:"human", name:{en:"Human trust layer",es:"Capa de confianza humana"},
   fw:["NIST SP 800-63","FIDO2 / passkeys"],
@@ -260,6 +273,8 @@ const D = [
   now:{en:"Set a no-exceptions callback rule for payments and access changes, executives included.",es:"Fijar una regla de verificación por otro canal, sin excepciones, para pagos y cambios de accesos, directivos incluidos."},
   next:{en:"Roll out phishing-resistant MFA (passkeys) and harden help-desk resets.",es:"Desplegar MFA resistente al phishing (passkeys) y endurecer los restablecimientos del help desk."},
   later:{en:"Deepfake drills for finance, HR and the help desk, measured like fire drills.",es:"Simulacros de deepfake para finanzas, RR. HH. y help desk, medidos como simulacros de incendio."},
+  test:{en:"Run surprise deepfake drills in finance and the help desk, and track who followed the callback rule.",es:"Hacer simulacros sorpresa de deepfake en finanzas y en el help desk, y medir quién siguió la verificación por otro canal."},
+  report:{en:"Report fraud attempts stopped and drill results to the board, including the executives' own compliance.",es:"Reportar al directorio los intentos de fraude frenados y los resultados de los simulacros, incluido el cumplimiento de los propios directivos."},
   board:{en:"Could a perfect fake of our CEO move money today?",es:"¿Podría hoy una copia perfecta de nuestro CEO mover dinero?"}},
  {id:"supply", name:{en:"Supply chain & exposure",es:"Cadena de suministro y exposición"},
   fw:["OWASP LLM03 · ASI04","NCSC AI threat to 2027","SBOM / AI-BOM"],
@@ -268,6 +283,8 @@ const D = [
   now:{en:"Map what is exposed to the internet and which AI components you run (models, MCP servers, plugins, packages), each with an owner.",es:"Mapear qué está expuesto a internet y qué componentes de IA usas (modelos, servidores MCP, plugins, paquetes), cada uno con un responsable."},
   next:{en:"Patch or isolate critical exposures within 48 hours; route packages, models and MCP servers through an approved internal registry.",es:"Parchear o aislar lo crítico expuesto en 48 horas; hacer pasar paquetes, modelos y servidores MCP por un repositorio interno aprobado."},
   later:{en:"Continuous exposure management prioritised by real exploitation, an SBOM/AI-BOM for every release, and AI questions in every vendor review.",es:"Gestión continua de la exposición priorizada por explotación real, SBOM/AI-BOM en cada release y preguntas sobre IA en cada revisión de proveedores."},
+  test:{en:"Simulate a critical flaw and a poisoned package: measure the hours to patch or isolate and to block the component.",es:"Simular un fallo crítico y un paquete envenenado: medir las horas hasta parchear o aislar y hasta bloquear el componente."},
+  report:{en:"Report patch time for exploited flaws and AI-component coverage (SBOM/AI-BOM) to the board, together with vendor risk.",es:"Reportar al directorio el tiempo de parcheo de fallos explotados y la cobertura de componentes de IA (SBOM/AI-BOM), junto con el riesgo de proveedores."},
   board:{en:"If a critical flaw is published on Monday, are we safe by Wednesday?",es:"Si el lunes se publica un fallo crítico, ¿estamos a salvo el miércoles?"}},
  {id:"response", name:{en:"Response & governance",es:"Respuesta y gobierno"},
   fw:["NIST AI RMF","NIST CSF 2.0"],
@@ -276,6 +293,8 @@ const D = [
   now:{en:"Measure your real time to detect and contain; agree which containment actions can run without approval.",es:"Medir el tiempo real de detección y contención; acordar qué acciones de contención pueden ejecutarse sin aprobación."},
   next:{en:"Correlate identity, cloud and API signals; automate token revocation and workload isolation.",es:"Correlacionar señales de identidad, nube y APIs; automatizar la revocación de tokens y el aislamiento de cargas."},
   later:{en:"Quantify AI risk in business terms and review the roadmap with the board every quarter.",es:"Cuantificar el riesgo de IA en términos de negocio y revisar el roadmap con el directorio cada trimestre."},
+  test:{en:"Run a machine-speed tabletop: an AI-driven intrusion on a one-hour clock, using your automated playbooks.",es:"Hacer un ejercicio de mesa a velocidad de máquina: una intrusión guiada por IA con un reloj de una hora, usando los playbooks automáticos."},
+  report:{en:"Benchmark your AI readiness against peers and tie the roadmap budget to risk reduced, in money and hours.",es:"Comparar la preparación ante la IA con el sector y vincular el presupuesto del roadmap al riesgo reducido, en dinero y horas."},
   board:{en:"How long from first access to containment, and what does each hour cost us?",es:"¿Cuánto tarda en pasar del primer acceso a la contención y cuánto nos cuesta cada hora?"}}
 ];
 
@@ -397,13 +416,16 @@ Object.assign(T.en,{figs:["Human","AI agent","Human + AI"],
   three:[["Autonomy","Who is acting: a person, an AI agent on its own, or a person using AI? And how much does it decide without a human?"],["Authority","What was it allowed to do, and for whom?"],["Authentication","Is that identity genuine, or a stolen token, a cloned voice, a copy? Can we prove it?"]],
   threeh:"Three questions every request should answer",
   path:["Access","Lateral move","Action","Data out"],pathcap:"Where the attack stopped",
-  tl:"Your shift, scenario by scenario",legend:"Outcome",na:"Doesn't apply: we don't have this",nachip:"Not applicable",nanote:"Skipped. It won't count in your score. Worth a quick check, though: agents, APIs and cloud services often arrive through vendors and SaaS tools before IT plans them."});
+  tl:"Your shift, scenario by scenario",legend:"Outcome",na:"Doesn't apply: we don't have this",tiers:["Starting out","Building","Advanced"],tailored:"Tailored to your answers: the three areas with the lowest scores, each starting from where it is today.",nachip:"Not applicable",nanote:"Skipped. It won't count in your score. Worth a quick check, though: agents, APIs and cloud services often arrive through vendors and SaaS tools before IT plans them."});
 Object.assign(T.es,{figs:["Persona","Agente de IA","Persona + IA"],
   three:[["Autonomía","¿Quién actúa: una persona, un agente de IA por su cuenta o una persona usando IA? ¿Y cuánto decide sin intervención humana?"],["Autoridad","¿Qué se le permitió hacer y en nombre de quién?"],["Autenticación","¿Esa identidad es real o es un token robado, una voz clonada, una copia? ¿Podemos probarlo?"]],
   threeh:"Tres preguntas que toda petición debería responder",
   path:["Acceso","Movimiento lateral","Acción","Salida de datos"],pathcap:"Dónde se detuvo el ataque",
-  tl:"Tu turno, escenario a escenario",legend:"Resultado",na:"No aplica: no tenemos esto",nachip:"No aplica",nanote:"Omitido. No cuenta en tu puntuación. Aun así, vale la pena confirmarlo: agentes, APIs y servicios en la nube suelen llegar a través de proveedores y herramientas SaaS antes de que TI los planifique."});
+  tl:"Tu turno, escenario a escenario",legend:"Resultado",na:"No aplica: no tenemos esto",tiers:["Inicial","En desarrollo","Avanzado"],tailored:"Hecho a partir de tus respuestas: los tres bloques con menor puntuación, cada uno desde donde está hoy.",nachip:"No aplica",nanote:"Omitido. No cuenta en tu puntuación. Aun así, vale la pena confirmarlo: agentes, APIs y servicios en la nube suelen llegar a través de proveedores y herramientas SaaS antes de que TI los planifique."});
 
+const STG=["now","next","later","test","report"];
+const tier=p=>p<34?0:p<67?1:2;
+const plan=x=>[0,1,2].map(k=>x.d[STG[tier(x.pct)+k]][lang]);
 const NA_OK=["03:07","03:41","04:15","04:52","05:30","06:04","07:18","13:10","14:30"];
 const val=i=>{const a=answers[i];return a==null||a<0?null:Q[i].o[a][0];};
 const OUTC=["var(--bad)","var(--warn)","var(--slow)","var(--ok)"];
@@ -641,8 +663,8 @@ function pick(oi){answers[step]=oi;render();const n=document.getElementById("nex
 function summaryText(sc,total,prio){
   const L=t().levels[levelIdx(total)];
   let s=`${t().h1} · ${t().report}\n${t().overall}: ${total}/100 (${L[0]})\n\n`+sc.map(x=>`- ${x.d.name[lang]}: ${x.pct==null?t().nachip:x.pct+"/100"}`).join("\n");
-  s+=`\n\n${t().prio}:\n`+prio.map((p,i)=>`${i+1}. ${p.d.name[lang]}: ${p.d.now[lang]}`).join("\n");
-  s+=`\n\n${t().road}\n${t().now}:\n`+prio.map(p=>`- ${p.d.now[lang]}`).join("\n")+`\n${t().nextc}:\n`+prio.map(p=>`- ${p.d.next[lang]}`).join("\n")+`\n${t().later}:\n`+prio.map(p=>`- ${p.d.later[lang]}`).join("\n");
+  s+=`\n\n${t().prio}:\n`+prio.map((p,i)=>`${i+1}. ${p.d.name[lang]} (${t().tiers[tier(p.pct)]}): ${plan(p)[0]}`).join("\n");
+  s+=`\n\n${t().road}\n${t().now}:\n`+prio.map(p=>`- ${plan(p)[0]}`).join("\n")+`\n${t().nextc}:\n`+prio.map(p=>`- ${plan(p)[1]}`).join("\n")+`\n${t().later}:\n`+prio.map(p=>`- ${plan(p)[2]}`).join("\n");
   s+=`\n\n${t().boardq}:\n`+prio.map(p=>`- ${p.d.board[lang]}`).join("\n");
   return s+"\n\navabyteguard.com";
 }
@@ -668,13 +690,14 @@ function results(){
     </div>
     <div class="sec"><h3>${t().prio}</h3>
       ${prio.map((p,i)=>`<div class="prio">${icon(p.d.id)}<div class="c">
-        <div class="top"><span class="rank">0${i+1}</span><h4>${p.d.name[lang]}</h4><span class="meta">${p.pct}/100</span></div>
-        <p><b>${t().why}.</b> ${p.d.why[lang]}</p><p><b>${t().first}.</b> ${p.d.now[lang]}</p>
+        <div class="top"><span class="rank">0${i+1}</span><h4>${p.d.name[lang]}</h4><span class="meta">${p.pct}/100</span><span class="tier t${tier(p.pct)}">${t().tiers[tier(p.pct)]}</span></div>
+        <p><b>${t().why}.</b> ${p.d.why[lang]}</p><p><b>${t().first}.</b> ${plan(p)[0]}</p>
         <p class="q">${t().boardq}: “${p.d.board[lang]}”</p>
         <div class="fw">${p.d.fw.map(f=>`<span>${f}</span>`).join("")}</div></div></div>`).join("")}
     </div>
     <div class="sec"><h3>${t().road}</h3>
-      <div class="road">${[["now",t().now],["next",t().nextc],["later",t().later]].map(([k,h])=>`<div class="col"><h5><i></i>${h}</h5><ul>${prio.map(p=>`<li>${p.d[k][lang]}<small>${p.d.name[lang]}</small></li>`).join("")}</ul></div>`).join("")}</div>
+      <div class="tailor"><p>${t().tailored}</p><div>${prio.map(p=>`<span class="tier t${tier(p.pct)}">${p.d.name[lang]} · ${t().tiers[tier(p.pct)]}</span>`).join("")}</div></div>
+      <div class="road">${[t().now,t().nextc,t().later].map((h,k)=>`<div class="col"><h5><i></i>${h}</h5><ul>${prio.map(p=>`<li>${plan(p)[k]}<small>${p.d.name[lang]}</small></li>`).join("")}</ul></div>`).join("")}</div>
       ${strong.length?`<p class="keep"><b>${t().keep}:</b> ${strong.map(s=>s.d.name[lang]).join(", ")}.</p>`:""}
     </div>
     <div class="sec actions">
