@@ -44,7 +44,15 @@ body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset
 .bar .in{max-width:1120px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:10px;display:flex;align-items:center;gap:12px;flex-wrap:wrap}
 .brand{font-family:var(--display);font-weight:800;letter-spacing:.06em;font-size:18px}
 .brand span{color:var(--accent)}
-a.brand{color:var(--ink);text-decoration:none}
+/* AvaByteGuard site navigation: same look as the main site in every theme */
+.sitenav{background:#000;display:flex;align-items:center;flex-wrap:wrap;gap:10px 32px;padding-block:24px;padding-left:max(32px,env(safe-area-inset-left,0px));padding-right:max(32px,env(safe-area-inset-right,0px));font-family:Arial,Helvetica,sans-serif}
+.sn-brand{font-size:30px;font-weight:900;color:#E7000B;text-decoration:none;line-height:1.2;letter-spacing:-.01em}
+.sn-links{display:flex;flex-wrap:wrap;gap:8px 32px}
+.sn-links a{font-size:14px;color:#D1D5DC;text-decoration:none}
+.sn-links a:hover{color:#fff}
+.sn-links a.sn-cur{color:#F2B14C;font-weight:600}
+.sitenav a:focus-visible{outline:2px solid #F2B14C;outline-offset:3px}
+@media (max-width:560px){.sitenav{gap:8px 20px;padding-block:16px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}.sn-brand{font-size:24px}.sn-links{gap:8px 20px}}
 .clock{font-family:var(--mono);font-size:13px;color:var(--muted);font-variant-numeric:tabular-nums}
 .spacer{flex:1}
 .tally{display:flex;gap:8px;font-family:var(--mono);font-size:12px}
@@ -217,8 +225,17 @@ h1,h2,h3,h4{text-wrap:balance;margin:0}
 <body>
 
 
+<nav class="sitenav" aria-label="AvaByteGuard">
+  <a class="sn-brand" href="https://www.avabyteguard.com/">AVA BYTEGUARD</a>
+  <div class="sn-links">
+    <a href="https://www.avabyteguard.com/">Home</a>
+    <a href="https://www.avabyteguard.com/about">About</a>
+    <a class="sn-cur" href="https://www.avabyteguard.com/ai-readiness" aria-current="page">AI Readiness</a>
+    <a href="https://www.avabyteguard.com/#games">Games</a>
+  </div>
+</nav>
 <div class="bar"><div class="in">
-  <a class="brand" href="https://www.avabyteguard.com/">AVA<span>BYTE</span>GUARD</a>
+  <span class="brand">WHO'S KNOCKING<span>?</span></span>
   <div class="clock" id="clock"></div>
   <div class="spacer"></div>
   <div class="tally" id="tally"></div>
