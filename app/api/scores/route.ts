@@ -9,7 +9,7 @@ export const dynamic = "force-dynamic";
 
 const KEY = "bytemuncher:scores";
 const KEEP = 100; // stored entries
-const SHOW = 10; // returned entries
+const SHOW = 5; // returned entries (top 5)
 const LEVELS = 5;
 const MAX_PER_LEVEL = 9000; // generous ceiling to reject obviously fake scores
 

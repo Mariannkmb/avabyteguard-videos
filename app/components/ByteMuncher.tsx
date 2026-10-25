@@ -1460,6 +1460,7 @@ type Game = ReturnType<typeof createGame>;
 type Row = { name: string; score: number; level: number };
 type Board = { mode: "global" | "local" | "loading"; rows: Row[] };
 const LOCAL_KEY = "bm-scores";
+const TOP = 5; // the ranking shows the top 5 players
 function readLocal(): Row[] {
   try {
     const v = JSON.parse(localStorage.getItem(LOCAL_KEY) || "[]");
@@ -1504,7 +1505,7 @@ function useLeaderboard() {
           }
         } catch {}
       }
-      const rows = [...readLocal(), entry].sort((a, b) => b.score - a.score).slice(0, 10);
+      const rows = [...readLocal(), entry].sort((a, b) => b.score - a.score).slice(0, TOP);
       writeLocal(rows);
       setBoard({ mode: "local", rows });
       return rankOf(rows);
@@ -1683,7 +1684,7 @@ function Kbd({ children }: { children: React.ReactNode }) {
   );
 }
 const MEDALS = [C.gold, "#C9D1E0", "#D08C5B"];
-function Leaderboard({ board, highlight, limit = 10 }: { board: Board; highlight?: string; limit?: number }) {
+function Leaderboard({ board, highlight, limit = TOP }: { board: Board; highlight?: string; limit?: number }) {
   return (
     <div className="flex flex-col gap-2">
       <div className="flex items-baseline justify-between gap-2">
@@ -1818,7 +1819,7 @@ function GameModal({
       lines: [
         hud.reason === "System infected" ? "A virus took your last shield." : "You ran out of shields.",
         `Score ${hud.score.toLocaleString("en-US")} · reached level ${level} of ${LEVELS}`,
-        ...(hud.score > 0 && place <= 10 ? [`That puts you #${place} in the Top defenders. Save your name!`] : []),
+        ...(hud.score > 0 && place <= TOP ? [`That puts you #${place} in the Top defenders. Save your name!`] : []),
       ],
       cta: "Play again",
       tone: C.red,
