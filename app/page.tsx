@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import ByteMuncher from "./components/ByteMuncher";
+import ZoneGuard from "./components/ZoneGuard";
 
 const videos = [
   { title: "AI found a flaw in 70% of websites. Is yours one of them?", id: "SWa85MEgfiA", type: "short", year: "2026" },
@@ -119,6 +120,7 @@ export default function Home() {
         </div>
       )}
       <ByteMuncher />
+      <ZoneGuard />
     </main>
   );
 }

@@ -3,12 +3,12 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Chakra_Petch, JetBrains_Mono, Silkscreen } from "next/font/google";
 
-const display = Silkscreen({ weight: ["400", "700"], subsets: ["latin"] });
-const body = Chakra_Petch({ weight: ["400", "500", "600"], subsets: ["latin"] });
-const mono = JetBrains_Mono({ weight: ["500", "700"], subsets: ["latin"] });
+export const display = Silkscreen({ weight: ["400", "700"], subsets: ["latin"] });
+export const body = Chakra_Petch({ weight: ["400", "500", "600"], subsets: ["latin"] });
+export const mono = JetBrains_Mono({ weight: ["500", "700"], subsets: ["latin"] });
 
 /* ================= palette ================= */
-const C = {
+export const C = {
   ink: "#090C15",
   panel: "#10152A",
   line: "#1C2442",
@@ -1457,43 +1457,46 @@ function createGame(cv: HTMLCanvasElement, onHud: (h: Hud) => void) {
 type Game = ReturnType<typeof createGame>;
 
 /* ================= leaderboard ================= */
-type Row = { name: string; score: number; level: number };
-type Board = { mode: "global" | "local" | "loading"; rows: Row[] };
-const LOCAL_KEY = "bm-scores";
+// level = Patch-Man level, or Zone Guard board size; time = seconds (Zone Guard)
+export type Row = { name: string; score: number; level: number; time?: number };
+export type Board = { mode: "global" | "local" | "loading"; rows: Row[] };
+export type GameId = "patchman" | "zoneguard";
 const TOP = 5; // the ranking shows the top 5 players
-function readLocal(): Row[] {
+const LOCAL_KEYS: Record<GameId, string> = { patchman: "bm-scores", zoneguard: "zg-scores" };
+const API: Record<GameId, string> = { patchman: "/api/scores", zoneguard: "/api/scores?game=zoneguard" };
+function readLocal(game: GameId): Row[] {
   try {
-    const v = JSON.parse(localStorage.getItem(LOCAL_KEY) || "[]");
+    const v = JSON.parse(localStorage.getItem(LOCAL_KEYS[game]) || "[]");
     return Array.isArray(v) ? v : [];
   } catch {
     return [];
   }
 }
-function writeLocal(rows: Row[]) {
+function writeLocal(game: GameId, rows: Row[]) {
   try {
-    localStorage.setItem(LOCAL_KEY, JSON.stringify(rows));
+    localStorage.setItem(LOCAL_KEYS[game], JSON.stringify(rows));
   } catch {}
 }
 
-function useLeaderboard() {
+export function useLeaderboard(game: GameId = "patchman") {
   const [board, setBoard] = useState<Board>({ mode: "loading", rows: [] });
   useEffect(() => {
     let alive = true;
-    fetch("/api/scores", { cache: "no-store" })
+    fetch(API[game], { cache: "no-store" })
       .then((r) => (r.ok ? r.json() : Promise.reject()))
       .then((j: { scores: Row[] }) => alive && setBoard({ mode: "global", rows: j.scores }))
-      .catch(() => alive && setBoard({ mode: "local", rows: readLocal() }));
+      .catch(() => alive && setBoard({ mode: "local", rows: readLocal(game) }));
     return () => {
       alive = false;
     };
-  }, []);
+  }, [game]);
   const submit = useCallback(
     async (entry: Row): Promise<number> => {
       const rankOf = (rows: Row[]) =>
         rows.findIndex((r) => r.name === entry.name && r.score === entry.score) + 1;
       if (board.mode === "global" && !TEST_MODE) {
         try {
-          const r = await fetch("/api/scores", {
+          const r = await fetch(API[game], {
             method: "POST",
             headers: { "content-type": "application/json" },
             body: JSON.stringify(entry),
@@ -1505,17 +1508,27 @@ function useLeaderboard() {
           }
         } catch {}
       }
-      const rows = [...readLocal(), entry].sort((a, b) => b.score - a.score).slice(0, TOP);
-      writeLocal(rows);
+      const rows = [...readLocal(game), entry].sort((a, b) => b.score - a.score).slice(0, TOP);
+      writeLocal(game, rows);
       setBoard({ mode: "local", rows });
       return rankOf(rows);
     },
-    [board.mode]
+    [board.mode, game]
   );
   return { board, submit };
 }
 
-function NameEntry({ score, level, submit }: { score: number; level: number; submit: (r: Row) => Promise<number> }) {
+export function NameEntry({
+  score,
+  level,
+  time,
+  submit,
+}: {
+  score: number;
+  level: number;
+  time?: number;
+  submit: (r: Row) => Promise<number>;
+}) {
   const [name, setName] = useState(() => {
     try {
       return localStorage.getItem("bm-name") || "";
@@ -1543,7 +1556,7 @@ function NameEntry({ score, level, submit }: { score: number; level: number; sub
         try {
           localStorage.setItem("bm-name", clean);
         } catch {}
-        setPlace(await submit({ name: clean, score, level }));
+        setPlace(await submit(time === undefined ? { name: clean, score, level } : { name: clean, score, level, time }));
         setState("done");
       }}
     >
@@ -1573,7 +1586,7 @@ function NameEntry({ score, level, submit }: { score: number; level: number; sub
 }
 
 /* ================= AVA ================= */
-function Ava({ className = "" }: { className?: string }) {
+export function Ava({ className = "" }: { className?: string }) {
   return (
     <svg viewBox="0 0 200 230" className={className} role="img" aria-label="AVA, the AvaByteGuard mascot, smiling and waving">
       <defs>
@@ -1684,7 +1697,20 @@ function Kbd({ children }: { children: React.ReactNode }) {
   );
 }
 const MEDALS = [C.gold, "#C9D1E0", "#D08C5B"];
-function Leaderboard({ board, highlight, limit = TOP }: { board: Board; highlight?: string; limit?: number }) {
+export const fmtTime = (secs: number) =>
+  `${String(Math.floor(secs / 60)).padStart(2, "0")}:${String(Math.floor(secs % 60)).padStart(2, "0")}`;
+export function Leaderboard({
+  board,
+  highlight,
+  limit = TOP,
+  game = "patchman",
+}: {
+  board: Board;
+  highlight?: string;
+  limit?: number;
+  game?: GameId;
+}) {
+  const zg = game === "zoneguard";
   return (
     <div className="flex flex-col gap-2">
       <div className="flex items-baseline justify-between gap-2">
@@ -1701,21 +1727,32 @@ function Leaderboard({ board, highlight, limit = TOP }: { board: Board; highligh
         </p>
       ) : board.rows.length === 0 ? (
         <p className="text-[13px]" style={{ color: C.muted }}>
-          No scores yet. Finish a run and save your name to claim the top spot.
+          {zg
+            ? "No scores yet. Solve a puzzle and save your name to claim the top spot."
+            : "No scores yet. Finish a run and save your name to claim the top spot."}
         </p>
       ) : (
         <ol className={`${mono.className} flex flex-col text-[13px] tabular-nums`}>
           {board.rows.slice(0, limit).map((r, i) => (
             <li
               key={`${r.name}-${r.score}-${i}`}
-              className="grid grid-cols-[22px_minmax(0,1fr)_auto_auto] items-center gap-2 border-b py-1"
+              className={`grid ${zg ? "grid-cols-[22px_minmax(0,1fr)_auto_auto_auto]" : "grid-cols-[22px_minmax(0,1fr)_auto_auto]"} items-center gap-2 border-b py-1`}
               style={{ borderColor: C.line, color: r.name === highlight ? C.gold : C.fg }}
             >
               <span className="font-bold" style={{ color: MEDALS[i] ?? C.muted }}>{i + 1}</span>
               <span className={`${body.className} truncate text-[14px]`}>{r.name}</span>
-              <span title={RANKS[Math.min(LEVELS, Math.max(1, r.level)) - 1]} style={{ color: C.muted }}>
-                L{r.level}
-              </span>
+              {zg ? (
+                <>
+                  <span style={{ color: C.muted }}>
+                    {r.level}×{r.level}
+                  </span>
+                  <span style={{ color: C.muted }}>{r.time ? fmtTime(r.time) : "–"}</span>
+                </>
+              ) : (
+                <span title={RANKS[Math.min(LEVELS, Math.max(1, r.level)) - 1]} style={{ color: C.muted }}>
+                  L{r.level}
+                </span>
+              )}
               <span className="min-w-[56px] text-right">{r.score.toLocaleString("en-US")}</span>
             </li>
           ))}
@@ -2198,6 +2235,82 @@ function GameModal({
   );
 }
 
+/* ================= small animated preview for the home card ================= */
+function PatchPreview() {
+  const ref = useRef<HTMLCanvasElement>(null);
+  useEffect(() => {
+    const cv = ref.current;
+    const g = cv?.getContext("2d");
+    if (!cv || !g) return;
+    const map = MAZES[0];
+    const n = map.length;
+    const tier = TIERS[0];
+    const still = window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
+    let raf = 0;
+    const eaten = new Set(["9,3", "9,4", "9,5", "3,1"]);
+    const draw = (t: number) => {
+      const s = cv.width,
+        cs = s / n;
+      g.setTransform(1, 0, 0, 1, 0, 0);
+      g.fillStyle = "#060912";
+      g.fillRect(0, 0, s, s);
+      g.save();
+      g.lineCap = "round";
+      g.strokeStyle = tier.trace;
+      g.fillStyle = tier.trace;
+      g.lineWidth = cs * 0.2;
+      g.shadowColor = tier.hi;
+      g.shadowBlur = cs * 0.4;
+      for (let r = 0; r < n; r++)
+        for (let c = 0; c < n; c++) {
+          if (map[r][c] !== "#") continue;
+          const x = (c + 0.5) * cs,
+            y = (r + 0.5) * cs;
+          g.beginPath();
+          g.arc(x, y, cs * 0.1, 0, Math.PI * 2);
+          g.fill();
+          if (map[r][c + 1] === "#") {
+            g.beginPath();
+            g.moveTo(x, y);
+            g.lineTo(x + cs, y);
+            g.stroke();
+          }
+          if (map[r + 1]?.[c] === "#") {
+            g.beginPath();
+            g.moveTo(x, y);
+            g.lineTo(x, y + cs);
+            g.stroke();
+          }
+        }
+      g.restore();
+      for (let r = 0; r < n; r++)
+        for (let c = 0; c < n; c++) {
+          const ch = map[r][c];
+          const x = (c + 0.5) * cs,
+            y = (r + 0.5) * cs;
+          if ((ch === "." || ch === "V") && !eaten.has(`${r},${c}`)) drawByte(g, x, y, cs);
+          if (ch === "o") drawPatch(g, x, y, cs, t);
+          if (ch === "a") drawAntivirus(g, x, y, cs, t);
+        }
+      drawVirus(g, 1.5 * cs, 3.5 * cs, cs, t, 0);
+      drawBug(g, 6.5 * cs, 3.5 * cs, cs, [0, 1], t, false, false);
+      drawPlayer(g, 3.5 * cs, 9.5 * cs, cs, "left", Math.abs(Math.sin(t / 120)), "rgba(255,255,255,.2)", false, t);
+      if (!still) raf = requestAnimationFrame(draw);
+    };
+    raf = requestAnimationFrame(draw);
+    return () => cancelAnimationFrame(raf);
+  }, []);
+  return (
+    <canvas
+      ref={ref}
+      width={440}
+      height={440}
+      className="block aspect-square w-full rounded-lg"
+      style={{ border: `1px solid ${C.line}`, boxShadow: "0 12px 40px -16px rgba(230,57,70,.5)" }}
+    />
+  );
+}
+
 /* ================= section on the home page ================= */
 export default function ByteMuncher() {
   const [gameOpen, setGameOpen] = useState(false);
@@ -2233,7 +2346,7 @@ export default function ByteMuncher() {
         <div className="mb-3 text-[13px] tracking-wide" style={{ color: C.muted }}>
           by AvaByteGuard
         </div>
-        <div className="grid items-start gap-6 md:grid-cols-[minmax(0,1fr)_300px]">
+        <div className="grid items-center gap-6 md:grid-cols-[minmax(0,1fr)_200px] lg:grid-cols-[minmax(0,1fr)_200px_280px]">
           <div className="min-w-0">
             <p className="mb-4 max-w-[60ch] text-gray-300">
               A mini cybersecurity arcade game. Collect bytes, avoid bugs, and do not touch the viruses. Unlock backups, IDS
@@ -2257,7 +2370,18 @@ export default function ByteMuncher() {
               Open Game
             </button>
           </div>
-          <div className="min-w-0 rounded-xl p-4" style={{ background: "rgba(6,9,18,.6)", border: `1px solid ${C.line}` }}>
+          <button
+            type="button"
+            onClick={() => setGameOpen(true)}
+            className="mx-auto w-full max-w-[200px] rounded-lg"
+            aria-label="Open Patch-Man"
+          >
+            <PatchPreview />
+          </button>
+          <div
+            className="min-w-0 self-start rounded-xl p-4 md:col-span-2 lg:col-span-1"
+            style={{ background: "rgba(6,9,18,.6)", border: `1px solid ${C.line}` }}
+          >
             <Leaderboard board={board} limit={5} />
           </div>
         </div>
