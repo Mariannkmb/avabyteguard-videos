@@ -676,11 +676,62 @@ function createGame(cv: HTMLCanvasElement, onHud: (h: Hud) => void) {
     viruses = virusHomes.map((h) => ({ ...h, pr: h.r, pc: h.c, d: [0, 0] as Vec, spin: Math.random() * 6 }));
     want = null;
     frightUntil = idsUntil = fwUntil = aiUntil = avUntil = 0;
+    target = null;
     zaps = [];
   }
+  const touchDevice = typeof window !== "undefined" && window.matchMedia?.("(pointer: coarse)").matches;
   const setSpeed = () => {
-    tickMs = Math.max(165, 230 - (level - 1) * 15);
+    tickMs = Math.max(165, 230 - (level - 1) * 15) * (touchDevice ? 1.15 : 1);
   };
+  // tap-to-go: the cell the player tapped, reached by the shortest path
+  let target: Cell | null = null;
+  function nextStepTo(goal: Cell): Dir | null {
+    const key = (r: number, c: number) => r * N + c;
+    const first = new Map<number, Dir>();
+    const seen = new Set([key(player.r, player.c)]);
+    const q: Cell[] = [{ r: player.r, c: player.c }];
+    while (q.length) {
+      const cur = q.shift() as Cell;
+      if (cur.r === goal.r && cur.c === goal.c) return first.get(key(cur.r, cur.c)) ?? null;
+      for (const d of Object.keys(DIRS) as Dir[]) {
+        const [dr, dc] = DIRS[d];
+        const nr = cur.r + dr,
+          nc = wrap(cur.c + dc);
+        if (!open(nr, nc) || seen.has(key(nr, nc))) continue;
+        seen.add(key(nr, nc));
+        first.set(key(nr, nc), first.get(key(cur.r, cur.c)) ?? d);
+        q.push({ r: nr, c: nc });
+      }
+    }
+    return null;
+  }
+  function tapAt(x: number, y: number) {
+    const rect = cv.getBoundingClientRect();
+    let r = Math.floor(((y - rect.top) / rect.height) * N),
+      c = Math.floor(((x - rect.left) / rect.width) * N);
+    r = Math.max(0, Math.min(N - 1, r));
+    c = Math.max(0, Math.min(N - 1, c));
+    if (walls[r][c]) {
+      // tapped a wall: use the nearest open cell
+      let bestD = Infinity;
+      for (let rr = 0; rr < N; rr++)
+        for (let cc = 0; cc < N; cc++)
+          if (!walls[rr][cc]) {
+            const d = Math.abs(rr - r) + Math.abs(cc - c);
+            if (d < bestD) {
+              bestD = d;
+              r = rr;
+              c = cc;
+            }
+          }
+    }
+    ensureAudio();
+    if (phase === "ready") {
+      phase = "playing";
+      emit();
+    }
+    if (phase === "playing") target = { r, c };
+  }
   function newGame() {
     runId++;
     score = 0;
@@ -877,11 +928,26 @@ function createGame(cv: HTMLCanvasElement, onHud: (h: Hud) => void) {
       ai = now < aiUntil;
     player.pr = player.r;
     player.pc = player.c;
+    if (target) {
+      if (player.r === target.r && player.c === target.c) target = null;
+      else want = nextStepTo(target) ?? want;
+    }
     if (want) {
       const [dr, dc] = DIRS[want];
       if (open(player.r + dr, player.c + dc)) {
         player.d = [dr, dc];
         player.face = want;
+      }
+    }
+    // auto-turn: if the way ahead is blocked and there is only one way on, take it
+    if (!open(player.r + player.d[0], player.c + player.d[1]) && (player.d[0] || player.d[1])) {
+      const ways = (Object.keys(DIRS) as Dir[]).filter((d) => {
+        const [dr, dc] = DIRS[d];
+        return !(dr === -player.d[0] && dc === -player.d[1]) && open(player.r + dr, player.c + dc);
+      });
+      if (ways.length === 1) {
+        player.d = [...DIRS[ways[0]]] as Vec;
+        player.face = ways[0];
       }
     }
     const [pdr, pdc] = player.d;
@@ -1153,6 +1219,17 @@ function createGame(cv: HTMLCanvasElement, onHud: (h: Hud) => void) {
       drawBug(ctx, x * cs, y * cs, cs, b.d, frozen ? 0 : now, fright, flash);
       if (frozen) ring(x * cs, y * cs);
     });
+    if (target && phase === "playing") {
+      const k = 0.3 + 0.12 * Math.sin(now / 150);
+      ctx.save();
+      ctx.strokeStyle = C.red;
+      ctx.globalAlpha = 0.85;
+      ctx.lineWidth = 2 * dpr;
+      ctx.beginPath();
+      ctx.arc((target.c + 0.5) * cs, (target.r + 0.5) * cs, cs * k, 0, Math.PI * 2);
+      ctx.stroke();
+      ctx.restore();
+    }
     const [px, py] = pos(player, t);
     if (now < idsUntil) {
       const k = (now % 1200) / 1200;
@@ -1243,7 +1320,10 @@ function createGame(cv: HTMLCanvasElement, onHud: (h: Hud) => void) {
       phase = "playing";
       emit();
     }
-    if (phase === "playing") want = d;
+    if (phase === "playing") {
+      want = d;
+      target = null;
+    }
   }
   function togglePause() {
     if (phase === "playing") phase = "paused";
@@ -1296,9 +1376,11 @@ function createGame(cv: HTMLCanvasElement, onHud: (h: Hud) => void) {
   // swipe reacts while the finger is still moving (no need to lift it), and keeps steering as you drag
   let sx = 0,
     sy = 0,
-    swiping = false;
+    swiping = false,
+    swiped = false;
   const onDown = (e: PointerEvent) => {
     swiping = true;
+    swiped = false;
     sx = e.clientX;
     sy = e.clientY;
     try {
@@ -1311,10 +1393,12 @@ function createGame(cv: HTMLCanvasElement, onHud: (h: Hud) => void) {
       dy = e.clientY - sy;
     if (Math.max(Math.abs(dx), Math.abs(dy)) < 14) return;
     input(Math.abs(dx) > Math.abs(dy) ? (dx > 0 ? "right" : "left") : dy > 0 ? "down" : "up");
+    swiped = true;
     sx = e.clientX;
     sy = e.clientY;
   };
-  const onUp = () => {
+  const onUp = (e: PointerEvent) => {
+    if (swiping && !swiped && e.type === "pointerup") tapAt(e.clientX, e.clientY);
     swiping = false;
   };
 
@@ -1640,83 +1724,47 @@ function Leaderboard({ board, highlight, limit = 10 }: { board: Board; highlight
   );
 }
 
-/* ================= mobile joystick ================= */
-function Joystick({ onDir }: { onDir: (d: Dir) => void }) {
-  const ref = useRef<HTMLDivElement>(null);
-  const down = useRef(false);
-  const last = useRef<Dir | null>(null);
+/* ================= mobile two-thumb pad ================= */
+// left thumb: left/right · right thumb: up/down, like using two fingers on a keyboard
+function ThumbPad({ onDir }: { onDir: (d: Dir) => void }) {
   const [active, setActive] = useState<Dir | null>(null);
-  const handle = (x: number, y: number) => {
-    const el = ref.current;
-    if (!el) return;
-    const r = el.getBoundingClientRect();
-    const dx = x - (r.left + r.width / 2),
-      dy = y - (r.top + r.height / 2);
-    if (Math.hypot(dx, dy) < r.width * 0.12) return; // small dead zone in the middle
-    const d: Dir = Math.abs(dx) > Math.abs(dy) ? (dx > 0 ? "right" : "left") : dy > 0 ? "down" : "up";
-    if (d === last.current) return;
-    last.current = d;
+  const press = (d: Dir) => (e: React.PointerEvent) => {
+    e.preventDefault();
     setActive(d);
     onDir(d);
     try {
       navigator.vibrate?.(8);
     } catch {}
   };
-  const release = () => {
-    down.current = false;
-    last.current = null;
-    setActive(null);
-  };
-  const knob = { up: [0, -34], down: [0, 34], left: [-34, 0], right: [34, 0] } as const;
-  const [kx, ky] = active ? knob[active] : [0, 0];
-  const arrows: [Dir, string, string][] = [
-    ["up", "▲", "top-2 left-1/2 -translate-x-1/2"],
-    ["down", "▼", "bottom-2 left-1/2 -translate-x-1/2"],
-    ["left", "◀", "left-2 top-1/2 -translate-y-1/2"],
-    ["right", "▶", "right-2 top-1/2 -translate-y-1/2"],
-  ];
-  return (
-    <div
-      ref={ref}
-      role="group"
-      aria-label="Direction pad"
-      className="relative h-[168px] w-[168px] touch-none select-none rounded-full"
+  const btn = (d: Dir, label: string, size: string) => (
+    <button
+      key={d}
+      type="button"
+      aria-label={d}
+      onPointerDown={press(d)}
+      onPointerUp={() => setActive(null)}
+      onPointerCancel={() => setActive(null)}
+      onPointerLeave={() => setActive(null)}
+      className={`${size} touch-none select-none rounded-2xl text-2xl`}
       style={{
-        background: "radial-gradient(circle at 50% 40%, #1E2850, #10152A 70%)",
-        boxShadow: "inset 0 0 0 1px #2A3354, 0 10px 30px -12px rgba(230,57,70,.5)",
+        background: active === d ? C.red : "#1A2140",
+        color: active === d ? "#fff" : "#8C96B4",
+        boxShadow: active === d ? `0 0 18px ${C.red}` : "inset 0 0 0 1px #2A3354",
       }}
-      onPointerDown={(e) => {
-        e.preventDefault();
-        down.current = true;
-        try {
-          e.currentTarget.setPointerCapture(e.pointerId);
-        } catch {}
-        handle(e.clientX, e.clientY);
-      }}
-      onPointerMove={(e) => down.current && handle(e.clientX, e.clientY)}
-      onPointerUp={release}
-      onPointerCancel={release}
     >
-      {arrows.map(([d, label, pos]) => (
-        <span
-          key={d}
-          aria-hidden="true"
-          className={`absolute ${pos} text-xl`}
-          style={{ color: active === d ? C.red : "#5A6488", textShadow: active === d ? `0 0 10px ${C.red}` : "none" }}
-        >
-          {label}
-        </span>
-      ))}
-      <span
-        aria-hidden="true"
-        className="absolute top-1/2 left-1/2 h-16 w-16 rounded-full"
-        style={{
-          transform: `translate(calc(-50% + ${kx}px), calc(-50% + ${ky}px))`,
-          transition: "transform 80ms ease-out",
-          background: active ? `radial-gradient(circle at 40% 35%, #FF7A84, ${C.red})` : "radial-gradient(circle at 40% 35%, #3A4570, #222B4D)",
-          boxShadow: active ? `0 0 18px ${C.red}` : "inset 0 0 0 1px #2A3354",
-        }}
-      />
+      {label}
+    </button>
+  );
+  return (
+    <div className="flex w-full max-w-[420px] items-center justify-between gap-4">
+      <div className="flex gap-2">
+        {btn("left", "◀", "h-[72px] w-[72px]")}
+        {btn("right", "▶", "h-[72px] w-[72px]")}
+      </div>
+      <div className="flex flex-col gap-2">
+        {btn("up", "▲", "h-[56px] w-[80px]")}
+        {btn("down", "▼", "h-[56px] w-[80px]")}
+      </div>
     </div>
   );
 }
@@ -2019,7 +2067,7 @@ function GameModal({
 
             <div className="flex flex-wrap items-center justify-between gap-2">
               <p className="text-[13px]" style={{ color: C.muted }}>
-                Move <Kbd>←</Kbd> <Kbd>↑</Kbd> <Kbd>→</Kbd> <Kbd>↓</Kbd> or <Kbd>WASD</Kbd> · Pause <Kbd>P</Kbd> · Swipe on mobile
+                Move <Kbd>←</Kbd> <Kbd>↑</Kbd> <Kbd>→</Kbd> <Kbd>↓</Kbd> or <Kbd>WASD</Kbd> · Pause <Kbd>P</Kbd> · Or click a spot on the board
               </p>
               <div className="flex gap-2">
                 <button
@@ -2044,11 +2092,11 @@ function GameModal({
               </div>
             </div>
 
-            <div className="hidden flex-col items-center gap-1 pointer-coarse:flex">
-              <Joystick onDir={(d) => gameRef.current?.input(d)} />
-              <span className="text-[12px]" style={{ color: C.muted }}>
-                Keep your thumb on the pad and slide it to steer
-              </span>
+            <div className="hidden flex-col items-center gap-2 pointer-coarse:flex">
+              <p className="text-center text-[13px]" style={{ color: C.fg }}>
+                Easiest: <b>tap the board</b> where you want to go
+              </p>
+              <ThumbPad onDir={(d) => gameRef.current?.input(d)} />
             </div>
           </section>
 
