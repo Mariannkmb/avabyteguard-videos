@@ -56,6 +56,10 @@ export default function Home() {
           <a href="/about" className="text-sm text-gray-300 hover:text-white">
             About
           </a>
+
+          <a href="#games" className="text-sm text-gray-300 hover:text-white">
+            Games
+          </a>
         </nav>
 
         <div className="relative z-10 px-8 pt-24 max-w-2xl">
@@ -119,8 +123,14 @@ export default function Home() {
           </div>
         </div>
       )}
-      <ByteMuncher />
-      <ZoneGuard />
+      <section id="games" className="scroll-mt-6 px-8 pt-4 pb-16">
+        <h3 className="text-2xl font-bold">Games</h3>
+        <p className="mb-4 text-sm text-gray-400">Take a break and train your security instincts.</p>
+        <div className="grid max-w-5xl gap-4 md:grid-cols-2">
+          <ByteMuncher />
+          <ZoneGuard />
+        </div>
+      </section>
     </main>
   );
 }

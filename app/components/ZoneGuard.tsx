@@ -951,75 +951,59 @@ export default function ZoneGuard() {
   }, [open]);
 
   return (
-    <section className="bg-black px-8 pb-16 text-white">
+    <div className="h-full">
       <div
-        className={`${body.className} relative overflow-hidden rounded-2xl p-6 sm:p-8`}
-        style={{
-          background: `radial-gradient(600px 300px at 90% 0%, rgba(127,231,240,.14), transparent 70%), ${C.panel}`,
-          border: `1px solid ${C.line}`,
-          boxShadow: "0 30px 80px -40px rgba(127,231,240,.35)",
-        }}
+        className={`${body.className} flex h-full items-center gap-4 rounded-xl p-3 sm:p-4`}
+        style={{ background: C.panel, border: `1px solid ${C.line}` }}
       >
-        <div className="grid items-center gap-6 md:grid-cols-[minmax(0,1fr)_200px]">
-          <div className="min-w-0">
-            <div className="text-xs uppercase tracking-[0.18em]" style={{ color: C.muted }}>
-              Cybersecurity logic puzzle · unlimited
-            </div>
-            <h2 className={`${display.className} mt-1 text-3xl font-bold sm:text-4xl`}>
-              Zone<span style={{ color: C.byte, textShadow: "0 0 18px rgba(127,231,240,.45)" }}>Guard</span>
-            </h2>
-            <div className="mb-3 text-[13px] tracking-wide" style={{ color: C.muted }}>
-              by AvaByteGuard
-            </div>
-            <p className="mb-4 max-w-[60ch] text-gray-300">
-              Every network zone needs one IDS sensor. Place one per row, column and zone, and never let two sensors
-              touch. A new puzzle every time, from 5×5 to 9×9.
-            </p>
-            <p className="mb-6 text-[15px]" style={{ color: C.fg }}>
-              {leader ? (
-                <>
-                  Can you beat <b style={{ color: C.gold }}>{leader.name}</b>&apos;s{" "}
-                  <b className={`${mono.className} tabular-nums`}>{leader.score.toLocaleString("en-US")}</b> points?
-                </>
-              ) : (
-                "Solve a puzzle fast to top the Zone Guard ranking."
-              )}
-            </p>
+        <button
+          type="button"
+          onClick={() => setOpen(true)}
+          aria-label="Open Zone Guard"
+          className="grid aspect-square w-24 shrink-0 grid-cols-5 grid-rows-5 gap-[2px] rounded-lg p-[4px] sm:w-28"
+          style={{ background: "#0B1020", boxShadow: `inset 0 0 0 1px ${C.line}` }}
+        >
+          {SAMPLE.map((row, r) =>
+            row.map((zone, c) => {
+              const m = SAMPLE_MARKS[`${r},${c}`];
+              return (
+                <span key={`${r}-${c}`} className="flex items-center justify-center" style={tile(ZONE_COLORS[zone], 4)}>
+                  {m === SENSOR && <SensorIcon className="h-[72%] w-[72%]" spin={false} />}
+                  {m === CROSS && <CrossIcon className="h-[60%] w-[60%]" />}
+                </span>
+              );
+            })
+          )}
+        </button>
+        <div className="min-w-0 flex-1">
+          <div className="text-[10px] uppercase tracking-[0.16em]" style={{ color: C.muted }}>
+            Logic puzzle · unlimited
+          </div>
+          <h3 className={`${display.className} text-xl font-bold leading-tight`}>
+            Zone<span style={{ color: C.byte }}>Guard</span>
+          </h3>
+          <p className="mt-1 text-[13px] leading-snug text-gray-300">
+            Place one IDS sensor per zone, row and column, without letting two touch.
+          </p>
+          <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1">
             <button
               onClick={() => setOpen(true)}
-              className="rounded-md px-6 py-3 font-semibold uppercase tracking-wider text-white hover:brightness-110"
-              style={{ background: C.red, boxShadow: "0 6px 20px -6px rgba(230,57,70,.7)" }}
+              className="rounded-md px-4 py-1.5 text-[13px] font-semibold uppercase tracking-wider text-white hover:brightness-110"
+              style={{ background: C.red }}
             >
-              Play Zone Guard
+              Play
             </button>
-          </div>
-          <button
-            type="button"
-            onClick={() => setOpen(true)}
-            aria-label="Open Zone Guard"
-            className="mx-auto grid aspect-square w-full max-w-[200px] grid-cols-5 grid-rows-5 gap-[3px] rounded-xl p-[5px]"
-            style={{ background: "#0B1020", boxShadow: `inset 0 0 0 1px ${C.line}, 0 12px 40px -16px rgba(127,231,240,.45)` }}
-          >
-            {SAMPLE.map((row, r) =>
-              row.map((zone, c) => {
-                const m = SAMPLE_MARKS[`${r},${c}`];
-                return (
-                  <span
-                    key={`${r}-${c}`}
-                    className="flex items-center justify-center"
-                    style={tile(ZONE_COLORS[zone], 6)}
-                  >
-                    {m === SENSOR && <SensorIcon className="h-[70%] w-[70%]" spin={false} />}
-                    {m === CROSS && <CrossIcon className="h-[45%] w-[45%]" />}
-                  </span>
-                );
-              })
+            {leader && (
+              <span className="text-[12px]" style={{ color: C.muted }}>
+                Top: <b style={{ color: C.gold }}>{leader.name}</b>{" "}
+                <span className={`${mono.className} tabular-nums`}>{leader.score.toLocaleString("en-US")}</span>
+              </span>
             )}
-          </button>
+          </div>
         </div>
       </div>
 
       {open && <ZoneGuardModal onClose={() => setOpen(false)} board={board} submit={submit} />}
-    </section>
+    </div>
   );
 }

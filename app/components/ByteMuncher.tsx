@@ -2349,62 +2349,50 @@ export default function ByteMuncher() {
   }, [gameOpen]);
 
   return (
-    <section className="bg-black px-8 py-16 text-white">
+    <div className="h-full">
       <div
-        className={`${body.className} relative overflow-hidden rounded-2xl p-6 sm:p-8`}
-        style={{
-          background: `radial-gradient(600px 300px at 90% 0%, rgba(230,57,70,.18), transparent 70%), ${C.panel}`,
-          border: `1px solid ${C.line}`,
-          boxShadow: "0 30px 80px -40px rgba(230,57,70,.45)",
-        }}
+        className={`${body.className} flex h-full items-center gap-4 rounded-xl p-3 sm:p-4`}
+        style={{ background: C.panel, border: `1px solid ${C.line}` }}
       >
-        <div className="text-xs uppercase tracking-[0.18em]" style={{ color: C.muted }}>
-          Cybersecurity arcade · {LEVELS} levels
-        </div>
-        <h2 className={`${display.className} mt-1 text-3xl font-bold sm:text-4xl`}>
-          <span className="whitespace-nowrap">
-            Patch<span style={{ color: C.red, textShadow: "0 0 18px rgba(230,57,70,.55)" }}>-Man</span>
-          </span>
-        </h2>
-        <div className="mb-3 text-[13px] tracking-wide" style={{ color: C.muted }}>
-          by AvaByteGuard
-        </div>
-        <div className="grid items-center gap-6 md:grid-cols-[minmax(0,1fr)_200px]">
-          <div className="min-w-0">
-            <p className="mb-4 max-w-[60ch] text-gray-300">
-              A mini cybersecurity arcade game. Collect bytes, avoid bugs, and do not touch the viruses. Unlock backups, IDS
-              radar, firewalls and an AI copilot on your way to CISO.
-            </p>
-            <p className="mb-6 text-[15px]" style={{ color: C.fg }}>
-              {leader ? (
-                <>
-                  Can you beat <b style={{ color: C.gold }}>{leader.name}</b>&apos;s{" "}
-                  <b className={`${mono.className} tabular-nums`}>{leader.score.toLocaleString("en-US")}</b> points?
-                </>
-              ) : (
-                "Be the first name on the Top defenders board."
-              )}
-            </p>
+        <button
+          type="button"
+          onClick={() => setGameOpen(true)}
+          className="w-24 shrink-0 rounded-lg sm:w-28"
+          aria-label="Open Patch-Man"
+        >
+          <PatchPreview />
+        </button>
+        <div className="min-w-0 flex-1">
+          <div className="text-[10px] uppercase tracking-[0.16em]" style={{ color: C.muted }}>
+            Arcade · {LEVELS} levels
+          </div>
+          <h3 className={`${display.className} text-xl font-bold leading-tight`}>
+            <span className="whitespace-nowrap">
+              Patch<span style={{ color: C.red }}>-Man</span>
+            </span>
+          </h3>
+          <p className="mt-1 text-[13px] leading-snug text-gray-300">
+            Eat bytes, dodge bugs and viruses, and climb from Analyst to CISO.
+          </p>
+          <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1">
             <button
               onClick={() => setGameOpen(true)}
-              className="rounded-md px-6 py-3 font-semibold uppercase tracking-wider text-white hover:brightness-110"
-              style={{ background: C.red, boxShadow: "0 6px 20px -6px rgba(230,57,70,.7)" }}
+              className="rounded-md px-4 py-1.5 text-[13px] font-semibold uppercase tracking-wider text-white hover:brightness-110"
+              style={{ background: C.red }}
             >
-              Open Game
+              Play
             </button>
+            {leader && (
+              <span className="text-[12px]" style={{ color: C.muted }}>
+                Top: <b style={{ color: C.gold }}>{leader.name}</b>{" "}
+                <span className={`${mono.className} tabular-nums`}>{leader.score.toLocaleString("en-US")}</span>
+              </span>
+            )}
           </div>
-          <button
-            type="button"
-            onClick={() => setGameOpen(true)}
-            className="mx-auto w-full max-w-[200px] rounded-lg"
-            aria-label="Open Patch-Man"
-          >
-            <PatchPreview />
-          </button>
         </div>
       </div>
 
       {gameOpen && <GameModal onClose={close} board={board} submit={submit} />}
-    </section>
+    </div>
   );
 }
