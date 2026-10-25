@@ -401,7 +401,9 @@ function ZoneGuardModal({
     setMe(r.name);
     return submit(r);
   };
-  const drag = useRef(false);
+  // finger/mouse drag: once the pointer leaves the first tile, every empty tile it crosses gets an ✕
+  const drag = useRef<{ r: number; c: number; prev: number; active: boolean } | null>(null);
+  const dragOverRef = useRef<(x: number, y: number) => void>(() => {});
 
   useEffect(() => {
     if (startAt === null || doneAt !== null) return;
@@ -492,10 +494,12 @@ function ZoneGuardModal({
   }
 
   function press(r: number, c: number) {
-    if (won || hinted.has(`${r},${c}`)) return;
+    if (won) return;
+    const prev = marksRef.current[r][c];
+    drag.current = { r, c, prev, active: false };
+    if (hinted.has(`${r},${c}`)) return;
     const next = marksRef.current.map((row) => [...row]);
     next[r][c] = (next[r][c] + 1) % 3; // empty → ✕ → sensor → empty
-    drag.current = next[r][c] === CROSS;
     if (next[r][c] === CROSS) {
       sfx.cross();
       if (marksRef.current.flat().every((m) => m !== CROSS)) setBubble(pick(ON_CROSS));
@@ -509,17 +513,52 @@ function ZoneGuardModal({
     commit(next);
   }
   function dragOver(x: number, y: number) {
-    if (!drag.current || won) return;
+    const d = drag.current;
+    if (!d || won) return;
     const el = document.elementFromPoint(x, y)?.closest("[data-cell]") as HTMLElement | null;
     if (!el) return;
     const r = Number(el.dataset.r),
       c = Number(el.dataset.c);
-    if (marksRef.current[r]?.[c] !== EMPTY) return;
+    if (r === d.r && c === d.c) return;
     const next = marksRef.current.map((row) => [...row]);
-    next[r][c] = CROSS;
+    let changed = false;
+    if (!d.active) {
+      // it's a drag, not a tap: the first tile becomes ✕ too (a sensor or a hint stays as it was)
+      d.active = true;
+      const keep = d.prev === SENSOR || hinted.has(`${d.r},${d.c}`);
+      const first = keep ? d.prev : CROSS;
+      if (next[d.r][d.c] !== first) {
+        next[d.r][d.c] = first;
+        changed = true;
+      }
+    }
+    if (next[r]?.[c] === EMPTY) {
+      next[r][c] = CROSS;
+      changed = true;
+    }
+    if (!changed) return;
     sfx.cross();
     commit(next);
   }
+
+  // follow the finger anywhere on the page, so the drag never gets lost
+  useEffect(() => {
+    dragOverRef.current = dragOver;
+  });
+  useEffect(() => {
+    const move = (e: PointerEvent) => dragOverRef.current(e.clientX, e.clientY);
+    const end = () => {
+      drag.current = null;
+    };
+    window.addEventListener("pointermove", move);
+    window.addEventListener("pointerup", end);
+    window.addEventListener("pointercancel", end);
+    return () => {
+      window.removeEventListener("pointermove", move);
+      window.removeEventListener("pointerup", end);
+      window.removeEventListener("pointercancel", end);
+    };
+  }, []);
 
   function hint() {
     if (won || hintsLeft <= 0) return;
@@ -680,10 +719,6 @@ function ZoneGuardModal({
                 background: "#EEEAE3",
                 boxShadow: `inset 0 0 0 1px ${L.line}, 0 12px 30px -18px rgba(60,40,20,.25)`,
               }}
-              onPointerMove={(e) => dragOver(e.clientX, e.clientY)}
-              onPointerUp={() => (drag.current = false)}
-              onPointerCancel={() => (drag.current = false)}
-              onPointerLeave={() => (drag.current = false)}
             >
               {z.map((row, r) =>
                 row.map((zone, c) => {
