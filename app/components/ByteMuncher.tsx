@@ -1724,51 +1724,6 @@ function Leaderboard({ board, highlight, limit = 10 }: { board: Board; highlight
   );
 }
 
-/* ================= mobile two-thumb pad ================= */
-// left thumb: left/right · right thumb: up/down, like using two fingers on a keyboard
-function ThumbPad({ onDir }: { onDir: (d: Dir) => void }) {
-  const [active, setActive] = useState<Dir | null>(null);
-  const press = (d: Dir) => (e: React.PointerEvent) => {
-    e.preventDefault();
-    setActive(d);
-    onDir(d);
-    try {
-      navigator.vibrate?.(8);
-    } catch {}
-  };
-  const btn = (d: Dir, label: string, size: string) => (
-    <button
-      key={d}
-      type="button"
-      aria-label={d}
-      onPointerDown={press(d)}
-      onPointerUp={() => setActive(null)}
-      onPointerCancel={() => setActive(null)}
-      onPointerLeave={() => setActive(null)}
-      className={`${size} touch-none select-none rounded-2xl text-2xl`}
-      style={{
-        background: active === d ? C.red : "#1A2140",
-        color: active === d ? "#fff" : "#8C96B4",
-        boxShadow: active === d ? `0 0 18px ${C.red}` : "inset 0 0 0 1px #2A3354",
-      }}
-    >
-      {label}
-    </button>
-  );
-  return (
-    <div className="flex w-full max-w-[420px] items-center justify-between gap-4">
-      <div className="flex gap-2">
-        {btn("left", "◀", "h-[72px] w-[72px]")}
-        {btn("right", "▶", "h-[72px] w-[72px]")}
-      </div>
-      <div className="flex flex-col gap-2">
-        {btn("up", "▲", "h-[56px] w-[80px]")}
-        {btn("down", "▼", "h-[56px] w-[80px]")}
-      </div>
-    </div>
-  );
-}
-
 /* ================= modal ================= */
 function GameModal({
   onClose,
@@ -1881,7 +1836,7 @@ function GameModal({
       aria-modal="true"
       aria-label="Byte Muncher"
     >
-      <style>{`@keyframes bmToast{0%{opacity:0;transform:translateY(6px)}10%,75%{opacity:1;transform:none}100%{opacity:0}}.bm-toast{animation:bmToast 2.4s ease forwards}@keyframes bmPop{0%{transform:scale(1)}30%{transform:scale(1.25)}100%{transform:scale(1)}}.bm-pop{animation:bmPop .5s ease}.bm-board{width:min(100%,600px,66vh)}@media (pointer:coarse){.bm-board{width:min(100%,52vh)}}@media (prefers-reduced-motion:reduce){.bm-toast{animation:none}}`}</style>
+      <style>{`@keyframes bmToast{0%{opacity:0;transform:translateY(6px)}10%,75%{opacity:1;transform:none}100%{opacity:0}}.bm-toast{animation:bmToast 2.4s ease forwards}@keyframes bmPop{0%{transform:scale(1)}30%{transform:scale(1.25)}100%{transform:scale(1)}}.bm-pop{animation:bmPop .5s ease}.bm-board{width:min(100%,600px,66vh)}@media (pointer:coarse){.bm-board{width:min(100%,64vh)}}@media (prefers-reduced-motion:reduce){.bm-toast{animation:none}}`}</style>
       <div className="mx-auto flex max-w-6xl flex-col gap-4 px-4 py-5 sm:py-8">
         <header className="flex flex-wrap items-end justify-between gap-3">
           <div className="min-w-0">
@@ -2094,9 +2049,8 @@ function GameModal({
 
             <div className="hidden flex-col items-center gap-2 pointer-coarse:flex">
               <p className="text-center text-[13px]" style={{ color: C.fg }}>
-                Easiest: <b>tap the board</b> where you want to go
+                <b>Tap the board</b> where you want to go. Swipe to change direction fast.
               </p>
-              <ThumbPad onDir={(d) => gameRef.current?.input(d)} />
             </div>
           </section>
 
