@@ -95,21 +95,33 @@ export default function Home() {
       </section>
 
       {selectedVideo && (
-        <div className="fixed inset-0 bg-black/90 flex items-center justify-center z-50">
-          <div className="w-full max-w-4xl">
+        // Phones: the player fills the screen. Larger screens: centred, as before.
+        // Shorts are vertical (9:16), so they get a tall player instead of a 16:9 box.
+        <div className="fixed inset-0 z-50 flex flex-col bg-black sm:items-center sm:justify-center sm:bg-black/90 sm:p-6">
+          <div
+            className={`flex h-full w-full flex-col sm:h-auto ${
+              selectedVideo.type === "short" ? "sm:w-auto" : "sm:max-w-4xl"
+            }`}
+          >
             <button
               onClick={() => setSelectedVideo(null)}
-              className="mb-3 text-white"
+              className="self-end px-4 py-3 text-white sm:mb-3 sm:px-0 sm:py-0"
             >
               ✕ Close
             </button>
 
-            <iframe
-              className="w-full aspect-video"
-              src={`https://www.youtube.com/embed/${selectedVideo.id}?autoplay=1&rel=0`}
-              allow="autoplay; encrypted-media"
-              allowFullScreen
-            />
+            <div className="flex flex-1 items-center justify-center">
+              <iframe
+                className={
+                  selectedVideo.type === "short"
+                    ? "h-full w-full sm:h-[85vh] sm:w-auto sm:aspect-[9/16]"
+                    : "aspect-video w-full"
+                }
+                src={`https://www.youtube.com/embed/${selectedVideo.id}?autoplay=1&rel=0&playsinline=1`}
+                allow="autoplay; encrypted-media; fullscreen"
+                allowFullScreen
+              />
+            </div>
           </div>
         </div>
       )}
