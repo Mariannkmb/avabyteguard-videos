@@ -1,4 +1,5 @@
 import SiteNav from "../components/SiteNav";
+import HumanReveal from "../components/HumanReveal";
 
 export default function About() {
   return (
@@ -30,9 +31,7 @@ export default function About() {
             online — making cybersecurity easier to understand for everyone.
           </p>
 
-          <p className="rounded-xl border border-red-600/40 bg-red-950/30 p-5 text-lg italic text-gray-200">
-            “Any resemblance to reality is purely intentional.”
-          </p>
+          <HumanReveal />
         </div>
       </section>
     </main>
