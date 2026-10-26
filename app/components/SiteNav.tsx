@@ -14,10 +14,12 @@ const links: { id: Page; href: string; label: string }[] = [
 
 export default function SiteNav({ current }: { current?: Page }) {
   return (
-    <nav className="relative z-10 flex flex-wrap items-center gap-x-8 gap-y-2 px-8 py-6">
+    <nav className="relative z-10 flex flex-wrap items-center gap-x-8 gap-y-3 px-8 py-6">
       <Link href="/" className="text-3xl font-black text-red-600">
         AVA BYTEGUARD
       </Link>
+      {/* The links wrap as one group, so on phones they sit together on a second line */}
+      <div className="flex flex-wrap items-center gap-x-6 gap-y-2 sm:gap-x-8">
       {links.map((l) => {
         const isCurrent = l.id === current;
         const promo = l.id === "ai-readiness";
@@ -35,6 +37,7 @@ export default function SiteNav({ current }: { current?: Page }) {
           </Link>
         );
       })}
+      </div>
     </nav>
   );
 }

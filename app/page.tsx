@@ -59,9 +59,13 @@ export default function Home() {
 
           <button
             onClick={() => setSelectedVideo(latestVideo)}
-            className="bg-white text-black px-6 py-3 rounded font-bold"
+            className="inline-flex items-center gap-2 rounded-full bg-white px-7 py-3 font-bold text-black transition hover:-translate-y-0.5 hover:bg-gray-200 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
           >
-            ▶ Play
+            {/* An SVG icon, so phones don't swap the ▶ character for a blue emoji */}
+            <svg viewBox="0 0 24 24" className="h-5 w-5" aria-hidden="true">
+              <path d="M8 5.5v13a1 1 0 0 0 1.5.86l10.5-6.5a1 1 0 0 0 0-1.72L9.5 4.64A1 1 0 0 0 8 5.5z" fill="currentColor" />
+            </svg>
+            Play
           </button>
         </div>
       </section>
