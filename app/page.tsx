@@ -4,6 +4,7 @@ import { useState } from "react";
 import ByteMuncher from "./components/ByteMuncher";
 import ZoneGuard from "./components/ZoneGuard";
 import AiReadinessBanner from "./components/AiReadinessBanner";
+import SiteNav from "./components/SiteNav";
 
 const videos = [
   { title: "AI found a flaw in 70% of websites. Is yours one of them?", id: "SWa85MEgfiA", type: "short", year: "2026" },
@@ -47,25 +48,7 @@ export default function Home() {
       >
         <div className="absolute inset-0 bg-gradient-to-r from-black via-black/80 to-transparent" />
 
-        <nav className="relative z-10 flex items-center gap-8 px-8 py-6">
-          <h1 className="text-3xl font-black text-red-600">AVA BYTEGUARD</h1>
-
-          <a href="/" className="text-sm text-gray-300 hover:text-white">
-            Home
-          </a>
-
-          <a href="/about" className="text-sm text-gray-300 hover:text-white">
-            About
-          </a>
-
-          <a href="/ai-readiness" className="text-sm font-semibold text-[#F2B14C] hover:text-white">
-            AI Readiness
-          </a>
-
-          <a href="#games" className="text-sm text-gray-300 hover:text-white">
-            Games
-          </a>
-        </nav>
+        <SiteNav current="home" />
 
         <div className="relative z-10 px-8 pt-24 max-w-2xl">
           <h2 className="text-5xl font-black mb-4">{latestVideo.title}</h2>

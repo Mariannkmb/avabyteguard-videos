@@ -1,18 +1,12 @@
+import SiteNav from "../components/SiteNav";
+
 export default function About() {
   return (
     <main className="min-h-screen bg-black text-white">
       <section className="relative min-h-screen bg-[url('https://images.unsplash.com/photo-1518770660439-4636190af475')] bg-cover bg-center">
         <div className="absolute inset-0 bg-gradient-to-r from-black via-black/85 to-black/40" />
 
-        <nav className="relative z-10 flex items-center gap-8 px-8 py-6">
-          <a href="/" className="text-3xl font-black text-red-600">
-            AVA BYTEGUARD
-          </a>
-
-          <a href="/" className="text-sm text-gray-300 hover:text-white">
-            Home
-          </a>
-        </nav>
+        <SiteNav current="about" />
 
         <div className="relative z-10 max-w-4xl px-8 pt-24">
           <p className="mb-3 text-sm font-bold uppercase tracking-widest text-red-500">
