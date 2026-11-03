@@ -7,17 +7,17 @@ import AiReadinessBanner from "./components/AiReadinessBanner";
 import SiteNav from "./components/SiteNav";
 
 const videos = [
+  { title: "Why 30+ Countries Want You Ready for 72 Hours: The Cyber Reason", id: "nLzzPiHRMAk", type: "video", year: "2026" },
   { title: "AI found a flaw in 70% of websites. Is yours one of them?", id: "SWa85MEgfiA", type: "short", year: "2026" },
   { title: "They didn't hack his computer. They cloned his CEO!", id: "8S8CslfhO_A", type: "short", year: "2026" },
   { title: "The Padlock Was Real. The Route Was Hijacked", id: "CCs2SgIvBqs", type: "short", year: "2026" },
   { title: "The Paradox of AI Hallucinations", id: "q6U8sIUS3F8", type: "video", year: "2026" },
-  { title: "Artemis II The Cyber Frontier", id: "AzYxyKP3PhU", type: "video", year: "2026" },
-  { title: "Quantum Security The 2026 Shift", id: "eX-I0pdgPio", type: "short", year: "2026" },
+  { title: "Artemis II The Cyber Frontier", id: "5T3W58I43yw", type: "video", year: "2026" },
+  { title: "Quantum Security The 2026 Shift", id: "m384jRMD2BI", type: "short", year: "2026" },
   { title: "Cybersecurity 2026: What Really Changes", id: "pqipoYNFCPI", type: "short", year: "2026" },
 
-  { title: "Cyber News October 2025", id: "EBodKr-ZUp8", type: "short", year: "2025" },
-  { title: "Cyber News September 2025", id: "IdjR6JptHok", type: "short", year: "2025" },
-  { title: "Cyber News August 2025", id: "jK5Ce_Rbvnc", type: "video", year: "2025" },
+  { title: "Cyber News October 2025", id: "IhM3lt0ZgNk", type: "short", year: "2025" },
+  { title: "Cyber News August 2025", id: "xWTTat9Xo2w", type: "video", year: "2025" },
   { title: "AI Friend and Lover", id: "xm9sluoR4hw", type: "video", year: "2025" },
   { title: "Partirock Phishguard Video", id: "3fQdx-8uDNw", type: "video", year: "2025" },
 
