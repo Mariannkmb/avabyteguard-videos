@@ -251,7 +251,37 @@ h1,h2,h3,h4{text-wrap:balance;margin:0}
 .contact a.btn{text-decoration:none;display:inline-block}
 .mail{user-select:all;color:var(--ink);font-weight:600}
 @media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
-@media print{.bar,.actions,.lang{display:none!important}body{background:#fff}.prio,.col,.panel{break-inside:avoid}}
+.phead,.annex,.pfoot{display:none}
+@media print{
+ @page{size:A4;margin:12mm 12mm 14mm}
+ *{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+ .bar,.actions,.lang,.sitenav,.tlhint,.report>.kicker{display:none!important}
+ body{background:#fff}
+ .report{padding-top:0}
+ .phead{display:flex;align-items:center;gap:14px;background:#000;color:#fff;padding:12px 16px;border-radius:10px;margin-bottom:14px}
+ .phead .pb{font:900 22px Arial,Helvetica,sans-serif;color:#E7000B;letter-spacing:-.01em}
+ .phead .pt{font:600 11px var(--mono);letter-spacing:.04em;color:#F2B14C;flex:1}
+ .phead .pd{font:11px var(--mono);color:#ccc}
+ .tlb{pointer-events:none}
+ .prio,.col,.panel,.road,.tailor,.annex tr,.bars{break-inside:avoid}
+ .psplit{break-before:page}
+ .annex{display:block;break-before:page}
+ .rsplit{break-before:page}
+ .prio{padding:12px 14px;gap:10px}
+ .prio p{font-size:12px;line-height:1.45;margin:3px 0}
+ .prio .yours{padding:6px 10px;margin:4px 0}
+ .road li{font-size:12px;line-height:1.4}
+ .report>.note{font-size:11px}
+ .annex h3{margin:0 0 10px}
+ .annex table{width:100%;border-collapse:collapse;font-size:11.5px}
+ .annex th{text-align:left;font:600 10px var(--mono);letter-spacing:.06em;text-transform:uppercase;color:var(--muted);border-bottom:1.5px solid var(--ink);padding:6px 6px}
+ .annex td{border-bottom:1px solid var(--line);padding:7px 6px;vertical-align:top}
+ .annex td.m{font:10.5px var(--mono);white-space:nowrap}
+ .annex td.r{white-space:nowrap}
+ .annex td.r i{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:6px;vertical-align:middle}
+ .pfoot{display:block;margin-top:16px;padding:10px 14px;border:1px solid var(--line);border-radius:10px;font-size:12px}
+ .pfoot b{color:#E7000B}
+}
 </style>
 </head>
 <body>
@@ -335,7 +365,7 @@ const D = [
   short:{en:"Fast exploits, poisoned packages, MCP servers and AI vendors.",es:"Exploits rápidos, paquetes envenenados, servidores MCP y proveedores de IA."},
   why:{en:"AI shortens the time between a flaw being published and being exploited, and attacks on the AI supply chain are rising. Every model, package and MCP server is code you decided to trust.",es:"La IA acorta el plazo entre que se publica un fallo y se explota, y los ataques a la cadena de suministro de IA van en aumento. Cada modelo, paquete y servidor MCP es código en el que decidiste confiar."},
   now:{en:"Map what is exposed to the internet and which AI components you run (models, MCP servers, plugins, packages), each with an owner.",es:"Mapear qué está expuesto a internet y qué componentes de IA usas (modelos, servidores MCP, plugins, paquetes), cada uno con un responsable."},
-  next:{en:"Patch or isolate critical exposures within 48 hours; route packages, models and MCP servers through an approved internal registry.",es:"Parchear o aislar lo crítico expuesto en 48 horas; hacer pasar paquetes, modelos y servidores MCP por un repositorio interno aprobado."},
+  next:{en:"Patch or isolate exposed critical flaws within 3 days if already exploited, 14 days otherwise; route packages, models and MCP servers through an approved internal registry.",es:"Parchear o aislar lo crítico expuesto en 3 días si ya se explota y en 14 días si no; hacer pasar paquetes, modelos y servidores MCP por un repositorio interno aprobado."},
   later:{en:"Continuous exposure management prioritised by real exploitation, an SBOM/AI-BOM for every release, and AI questions in every vendor review.",es:"Gestión continua de la exposición priorizada por explotación real, SBOM/AI-BOM en cada release y preguntas sobre IA en cada revisión de proveedores."},
   test:{en:"Simulate a critical flaw and a poisoned package: measure the hours to patch or isolate and to block the component.",es:"Simular un fallo crítico y un paquete envenenado: medir las horas hasta parchear o aislar y hasta bloquear el componente."},
   report:{en:"Report patch time for exploited flaws and AI-component coverage (SBOM/AI-BOM) to the board, together with vendor risk.",es:"Reportar al directorio el tiempo de parcheo de fallos explotados y la cobertura de componentes de IA (SBOM/AI-BOM), junto con el riesgo de proveedores."},
@@ -352,6 +382,21 @@ const D = [
   board:{en:"How long from first access to containment, and what does each hour cost us?",es:"¿Cuánto tarda en pasar del primer acceso a la contención y cuánto nos cuesta cada hora?"}}
 ];
 
+const TTL={
+"02:10":["Forgotten API in the app code","API olvidada en el código de la app"],
+"02:45":["Mass download of customer data","Descarga masiva de datos de clientes"],
+"03:20":["Cloud key in the code","Clave de nube en el código"],
+"03:55":["From test to production","De pruebas a producción"],
+"04:30":["Invoice agent's token","Token del agente de facturas"],
+"05:10":["Fake payment order between agents","Orden de pago falsa entre agentes"],
+"07:15":["PDF with hidden instructions","PDF con instrucciones ocultas"],
+"08:00":["Data pasted into a personal AI","Datos pegados en una IA personal"],
+"09:15":["Deepfake video call","Videollamada con deepfake"],
+"10:40":["Help desk call with a cloned voice","Llamada al help desk con voz clonada"],
+"11:55":["Time to contain the attack","Tiempo para contener el ataque"],
+"13:10":["Critical VPN flaw","Fallo crítico en la VPN"],
+"14:30":["Fake MCP connector","Conector MCP falso"],
+"16:00":["The board asks","El directorio pregunta"]};
 const ATL={
 "02:10":[["AML.T0004","Search Application Repositories","Búsqueda en repositorios de apps"],["AML.T0116","Autonomous Reconnaissance","Reconocimiento autónomo"]],
 "02:45":[["AML.T0049","Exploit Public-Facing Application","Explotación de app expuesta"],["AML.T0025","Exfiltration via Cyber Means","Exfiltración de datos"]],
@@ -476,7 +521,7 @@ const T = {
   out:["Exposed","Weak control","Partial control","Protected"],fbh:"Your company's level of control here:",
   report:"End-of-day report",overall:"Overall readiness",bydomain:"By domain",prio:"What to prioritise",why:"Why it matters",first:"First move",youans:"Your answer at",boardq:"Question for your board",
   road:"Roadmap",now:"Now · 0–90 days",nextc:"Next · 3–6 months",later:"Later · 6–12 months",keep:"Keep and measure",
-  copy:"Copy summary",copied:"Summary copied",copyfail:"Copy blocked: select the text below instead.",pdf:"Save as PDF",retake:"Retake",
+  copy:"Copy summary",copied:"Summary copied",copyfail:"Copy blocked: select the text below instead.",pdf:"Download PDF",sub:"AI readiness check for security leaders",lvlw:"Level",alerts:"Your 14 alerts",tryit:"Take the check yourself",annex:"Alert by alert",atime:"Time",aalert:"Alert",adom:"Domain",ares:"Your result",fileT:"AvaByteGuard - AI readiness report",retake:"Retake",
   levels:[["Exposed","AI-driven attacks would probably go unnoticed. Start with visibility: you can't protect identities, APIs or AI tools you can't see."],["Reactive","You would find out, but late. The gaps are ownership and speed."],["Defined","The foundations are in place. The next step is closing the gap between detecting and acting."],["Adaptive","A strong position. Focus on automation and on showing the value to the board."],["AI-ready","Ahead of most. Keep testing: attackers' AI keeps improving."]],
   foot:"An AvaByteGuard research project, based on an MSc thesis (Warwick) on identity for AI agents. A self-assessment for discussion, not an audit or professional advice. Personal views.",
   talk:"Want to compare notes on your results?",talkl:"Connect on LinkedIn",ormail:"or email"},
@@ -488,7 +533,7 @@ const T = {
   out:["Expuesto","Control débil","Control parcial","Protegido"],fbh:"Nivel de control de tu empresa en este punto:",
   report:"Informe del día",overall:"Preparación global",bydomain:"Por dominio",prio:"Qué priorizar",why:"Por qué importa",first:"Primer paso",youans:"Tu respuesta a las",boardq:"Pregunta para tu directorio",
   road:"Roadmap",now:"Ahora · 0–90 días",nextc:"Después · 3–6 meses",later:"Más adelante · 6–12 meses",keep:"Mantener y medir",
-  copy:"Copiar resumen",copied:"Resumen copiado",copyfail:"No se pudo copiar: selecciona el texto de abajo.",pdf:"Guardar en PDF",retake:"Repetir",
+  copy:"Copiar resumen",copied:"Resumen copiado",copyfail:"No se pudo copiar: selecciona el texto de abajo.",pdf:"Descargar PDF",sub:"Diagnóstico de preparación ante la IA para líderes de seguridad",lvlw:"Nivel",alerts:"Tus 14 alertas",tryit:"Haz tu propio diagnóstico",annex:"Alerta por alerta",atime:"Hora",aalert:"Alerta",adom:"Dominio",ares:"Tu resultado",fileT:"AvaByteGuard - Informe de preparacion IA",retake:"Repetir",
   levels:[["Expuesta","Un ataque guiado por IA probablemente pasaría desapercibido. Empieza por la visibilidad: no puedes proteger identidades, APIs ni herramientas de IA que no ves."],["Reactiva","Te enterarías, pero tarde. Las brechas están en la responsabilidad y la velocidad."],["Definida","Las bases están puestas. El siguiente paso es acortar la distancia entre detectar y actuar."],["Adaptativa","Una posición sólida. Céntrate en automatizar y en mostrar el valor al directorio."],["Preparada para la IA","Por delante de la mayoría. Sigue probando: la IA de los atacantes también mejora."]],
   foot:"Un proyecto de investigación de AvaByteGuard, basado en una tesis de MSc (Warwick) sobre identidad para agentes de IA. Autoevaluación para conversar, no una auditoría ni asesoría profesional. Opiniones personales.",
   talk:"¿Quieres comparar notas sobre tus resultados?",talkl:"Conecta conmigo en LinkedIn",ormail:"o escríbeme a"}
@@ -763,14 +808,24 @@ function question(){
 }
 function pick(oi){answers[step]=oi;render();const n=document.getElementById("next");n&&n.focus({preventScroll:true});}
 
-function summaryText(sc,total,prio){
-  const L=t().levels[levelIdx(total)];
-  let s=`${t().h1} · ${t().report}\n${t().overall}: ${total}/100 (${L[0]})\n\n`+sc.map(x=>`- ${x.d.name[lang]}: ${x.pct==null?t().nachip:x.pct+"/100"}`).join("\n");
-  const rows=prio.length?prio:[...sc].filter(x=>x.pct!=null).sort((a,b)=>a.pct-b.pct).slice(0,3),also=sc.filter(x=>x.mn===0&&!prio.includes(x));
-  s+=`\n\n${t().prio}:\n`+(prio.length?prio.map((p,i)=>`${i+1}. ${p.d.name[lang]} (${t().tiers[tier(p.pct)]}): ${plan(p)[0]}`).join("\n"):t().noprio)+(also.length?`\n${t().alsoexp}: ${also.map(x=>x.d.name[lang]).join(", ")}`:"");
-  s+=`\n\n${t().road}\n${t().now}:\n`+rows.map(p=>`- ${plan(p)[0]}`).join("\n")+`\n${t().nextc}:\n`+rows.map(p=>`- ${plan(p)[1]}`).join("\n")+`\n${t().later}:\n`+rows.map(p=>`- ${plan(p)[2]}`).join("\n");
-  s+=`\n\n${t().boardq}:\n`+prio.map(p=>`- ${p.d.board[lang]}`).join("\n");
-  return s+"\n\navabyteguard.com";
+const today=()=>new Date().toLocaleDateString(lang==="es"?"es-ES":"en-GB",{day:"numeric",month:"long",year:"numeric"});
+const SITE="https://www.avabyteguard.com/ai-readiness";
+function summaryText(sc,total,prio,rows,alsoExp){
+  const L=t().levels[levelIdx(total)],q=lang==="es"?["«","»"]:["“","”"];
+  const cnt=[3,2,1,0].map(k=>Q.filter((_,i)=>val(i)===k).length),na=answers.filter(a=>a===-1).length;
+  const bar=p=>p==null?"··········":"■".repeat(Math.round(p/10))+"□".repeat(10-Math.round(p/10));
+  let s=`${t().h1.toUpperCase()} · ${t().report}\n${t().sub} · ${today()}\n\n`;
+  s+=`${t().overall}: ${total}/100 · ${t().lvlw} ${levelIdx(total)+1}/5, ${L[0]}\n${L[1]}\n\n`;
+  s+=`${t().alerts}: `+[3,2,1,0].map((k,j)=>`${cnt[j]} ${t().out[k]}`).join(" · ")+(na?` · ${na} ${t().nachip}`:"")+"\n\n";
+  s+=`${t().bydomain.toUpperCase()}\n`+sc.map(x=>`${bar(x.pct)} ${x.pct==null?t().nachip:String(x.pct).padStart(3," ")}  ${x.d.name[lang]}`).join("\n");
+  s+=`\n\n${t().prio.toUpperCase()}\n`+(prio.length?prio.map((p,i)=>`${i+1}. ${p.d.name[lang]} · ${p.pct}/100 · ${t().tiers[tier(p.pct)]}\n   ${t().first}: ${plan(p)[0]}\n   ${t().boardq}: ${q[0]}${p.d.board[lang]}${q[1]}`).join("\n\n"):`${t().noprio}. ${t().noprioTxt}`);
+  if(alsoExp.length)s+=`\n\n${t().alsoexp}: ${alsoExp.map(x=>x.d.name[lang]).join(", ")}.`;
+  s+=`\n\n${t().road.toUpperCase()}\n`+[t().now,t().nextc,t().later].map((h,k)=>{const it=rows.map(p=>plan(p)[k]);const u=[...new Set(it)];return `${h}\n`+u.map(x=>`- ${x}`).join("\n");}).join("\n\n");
+  return s+`\n\n${t().tryit}: ${SITE}${lang==="es"?"#es":""}\n${t().foot}`;
+}
+
+function annex(){
+  return `<section class="annex"><h3>${t().annex}</h3><table><thead><tr><th>${t().atime}</th><th>${t().aalert}</th><th>${t().adom}</th><th>${t().ares}</th><th>MITRE ATLAS</th></tr></thead><tbody>${Q.map((q,i)=>{const v=val(i);return `<tr><td class="m">${q.time}</td><td>${TTL[q.time]?TTL[q.time][lang==="en"?0:1]:""}</td><td>${dom(q.d).name[lang]}</td><td class="r"><i style="background:${v==null?"var(--line)":OUTC[v]}"></i>${v==null?t().nachip:t().out[v]}</td><td class="m">${(ATL[q.time]||[]).map(a=>a[0]).join("<br>")||"—"}</td></tr>`;}).join("")}</tbody></table></section>`;
 }
 
 function results(){
@@ -779,6 +834,7 @@ function results(){
   const color=p=>p<34?"var(--bad)":p<50?"var(--warn)":p<84?"var(--slow)":"var(--ok)";
   const topLevel=window.self===window.top;
   app.innerHTML=`<section class="report">
+    <div class="phead"><span class="pb">AVA BYTEGUARD</span><span class="pt">WHO'S KNOCKING? · AI READINESS</span><span class="pd">${today()}</span></div>
     <div class="kicker">${t().h1}</div><h2>${t().report}</h2>
     <div class="summary">
       <div class="panel"><div class="meta" style="text-align:center">${t().overall}</div>${gauge(total,color(total))}
@@ -792,7 +848,7 @@ function results(){
     <div class="sec"><div class="kicker">${t().bydomain}</div>
       <div class="bars">${sc.map(s=>`<div class="b">${icon(s.d.id)}<span>${s.d.name[lang]}</span><span class="rail"><i style="width:${s.pct||0}%;background:${color(s.pct||0)}"></i></span><span>${s.pct==null?"N/A":s.pct}</span></div>`).join("")}</div>
     </div>
-    <div class="sec"><h3>${t().prio}</h3>
+    <div class="sec psplit"><h3>${t().prio}</h3>
       ${prio.length?"":`<div class="prio allok"><div class="c"><h4>${t().noprio}</h4><p>${t().noprioTxt}</p></div></div>`}
       ${prio.map((p,i)=>`<div class="prio">${icon(p.d.id)}<div class="c">
         <div class="top"><span class="rank">0${i+1}</span><h4>${p.d.name[lang]}</h4><span class="meta">${p.pct}/100</span><span class="tier t${tier(p.pct)}">${t().tiers[tier(p.pct)]}</span></div>
@@ -801,7 +857,7 @@ function results(){
         <div class="fw">${p.d.fw.map(f=>`<span>${f}</span>`).join("")}</div></div></div>`).join("")}
     </div>
     ${alsoExp.length?`<p class="keep also"><b>${t().alsoexp}:</b> ${alsoExp.map(x=>x.d.name[lang]).join(", ")}.</p>`:""}
-    <div class="sec"><h3>${t().road}</h3>
+    <div class="sec rsplit"><h3>${t().road}</h3>
       <div class="tailor"><p>${prio.length?t().tailored:t().tailoredok}</p><div>${rows.map(p=>`<span class="tier t${tier(p.pct)}">${p.d.name[lang]} · ${t().tiers[tier(p.pct)]}</span>`).join("")}</div></div>
       <div class="road">${[t().now,t().nextc,t().later].map((h,k)=>`<div class="col"><h5><i></i>${h}</h5><ul>${(()=>{const it=rows.map(p=>({t:plan(p)[k],n:p.d.name[lang]}));const same=it.length>1&&it.every(x=>x.t===it[0].t);return same?`<li>${it[0].t}</li>`:it.map(x=>`<li>${x.t}<small>${x.n}</small></li>`).join("");})()}</ul></div>`).join("")}</div>
       ${strong.length?`<p class="keep"><b>${t().keep}:</b> ${strong.map(s=>s.d.name[lang]).join(", ")}.</p>`:""}
@@ -813,10 +869,10 @@ function results(){
       <textarea id="ctext" readonly hidden aria-label="${t().copy}" style="width:100%;min-height:180px;font:13px var(--mono);background:var(--surface);color:var(--ink);border:1px solid var(--line);border-radius:10px;padding:10px"></textarea>
       <div class="contact"><p>${t().talk}</p><div class="row"><a class="btn" href="${CONTACT}" target="_blank" rel="noopener">${t().talkl} →</a><span class="meta">${t().ormail} <b class="mail">${EMAIL}</b></span></div></div>
     </div>
-    <p class="note" style="margin-top:24px">${t().foot}</p></section>`;
-  const txt=summaryText(sc,total,prio);
+    <p class="note" style="margin-top:24px">${t().foot}</p>${annex()}<div class="pfoot"><b>${t().tryit}:</b> ${SITE.replace("https://www.","")}${lang==="es"?"#es":""}</div></section>`;
+  const txt=summaryText(sc,total,prio,rows,alsoExp);
   document.getElementById("copy").onclick=()=>{const msg=document.getElementById("cmsg"),ta=document.getElementById("ctext");const fail=()=>{ta.hidden=false;ta.value=txt;ta.focus();ta.select();msg.textContent=t().copyfail;};try{navigator.clipboard.writeText(txt).then(()=>{msg.textContent=t().copied;},fail);}catch(e){fail();}};
-  const p=document.getElementById("pdf");if(p)p.onclick=()=>window.print();
+  const p=document.getElementById("pdf");if(p)p.onclick=()=>{const old=document.title;document.title=`${t().fileT} - ${new Date().toISOString().slice(0,10)}`;const back=()=>{document.title=old;window.removeEventListener("afterprint",back);};window.addEventListener("afterprint",back);window.print();setTimeout(back,60000);};
   app.querySelectorAll(".tlb").forEach(b=>b.onclick=()=>{reviewing=true;step=+b.dataset.i;render();window.scrollTo({top:0});});
   document.getElementById("again").onclick=()=>{answers=[];reviewing=false;step=-1;shuffleOrders();render();window.scrollTo({top:0});};
 }
