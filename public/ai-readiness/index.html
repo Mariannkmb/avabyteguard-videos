@@ -824,7 +824,8 @@ function pick(oi){answers[step]=oi;render();const n=document.getElementById("nex
 const today=()=>new Date().toLocaleDateString(lang==="es"?"es-ES":"en-GB",{day:"numeric",month:"long",year:"numeric"});
 const SITE="https://www.avabyteguard.com/ai-readiness";
 /* each .pg is one A4 page: shrink a page only if its content would overflow */
-const PAGE_H=271*96/25.4-6;
+/* fit the shorter of A4 and US Letter (Safari ignores @page size), minus the 12mm + 14mm margins */
+const PAGE_H=(279.4-26)*96/25.4-6;
 function fitPages(){
   const css=document.getElementById("pcss"),pgs=[...document.querySelectorAll(".pg")];
   pgs.forEach(g=>g.style.zoom="");
