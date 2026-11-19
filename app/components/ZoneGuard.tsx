@@ -287,6 +287,10 @@ const sfx = {
     tone(1175, 0.22, 0.016, 0.05); // little shimmer
   },
   remove: () => tone(440, 0.12, 0.035, 0, 294),
+  bad: () => {
+    tone(330, 0.14, 0.04, 0, 247, "triangle"); // soft "uh-oh"
+    tone(247, 0.18, 0.035, 0.13, 196, "triangle");
+  },
   hint: () => [784, 988, 1175].forEach((f, i) => tone(f, 0.3, 0.03, i * 0.08)),
   win: () => {
     [523, 659, 784, 1046, 784, 1046, 1318].forEach((f, i) => tone(f, 0.32, 0.045, i * 0.11)); // music-box tune
@@ -301,6 +305,7 @@ const ON_SENSOR = ["Sensor online!", "Nice spot!", "That zone feels safer alread
 const ON_CROSS = ["Good thinking. ✕ means no sensor here.", "Ruling cells out is half the job.", "Drag your finger to mark many ✕ at once."];
 const ON_REMOVE = ["Rethinking is part of security.", "No worries, try another spot."];
 const WRONG = "Hmm, something overlaps. Check rows, columns, zones and touching neighbors.";
+const ON_BAD = ["That sensor can't go there. Check its row, column, zone and neighbors.", "Not quite: that spot breaks a rule. Tap it to clear it.", "Close! But that one's in the wrong place."];
 const CHEERS = ["You did it, defender!", "Every zone is safe. Bravo!", "Textbook network defense!", "Wow, that was smooth!", "Attackers have nowhere to hide now!"];
 const TIPS = [
   "IDS means Intrusion Detection System: it watches network traffic and raises the alarm, just like your sensors.",
@@ -516,6 +521,10 @@ function ZoneGuardModal({
       // only crossing tiles and no sensor yet? remind how sensors go in
       if (!placed && crosses >= 4) setBubble(NUDGE);
       else if (marksRef.current.flat().every((m) => m !== CROSS)) setBubble(pick(ON_CROSS));
+    } else if (next[r][c] === SENSOR && puzzle.solution[r] !== c) {
+      // wrong spot: flag it straight away instead of waiting for the last sensor
+      sfx.bad();
+      setBubble(pick(ON_BAD));
     } else if (next[r][c] === SENSOR) {
       sfx.sensor();
       setBubble(pick(ON_SENSOR));
@@ -758,6 +767,7 @@ function ZoneGuardModal({
                 row.map((zone, c) => {
                   const m = marks[r][c];
                   const isHint = hinted.has(`${r},${c}`);
+                  const isBad = m === SENSOR && puzzle.solution[r] !== c;
                   return (
                     <button
                       key={`${r}-${c}`}
@@ -765,7 +775,7 @@ function ZoneGuardModal({
                       data-cell=""
                       data-r={r}
                       data-c={c}
-                      aria-label={`Row ${r + 1}, column ${c + 1}${m === SENSOR ? ", sensor" : m === CROSS ? ", marked empty" : ""}`}
+                      aria-label={`Row ${r + 1}, column ${c + 1}${isBad ? ", sensor in the wrong place" : m === SENSOR ? ", sensor" : m === CROSS ? ", marked empty" : ""}`}
                       onPointerDown={(e) => {
                         e.preventDefault();
                         try {
@@ -785,7 +795,21 @@ function ZoneGuardModal({
                         filter: won && m !== SENSOR ? "saturate(.5) brightness(.75)" : "none",
                       }}
                     >
-                      {m === SENSOR && <SensorIcon className="zg-pop h-[66%] w-[66%] drop-shadow-[0_2px_4px_rgba(0,0,0,.35)]" />}
+                      {m === SENSOR && (
+                        <SensorIcon className={`zg-pop h-[66%] w-[66%] drop-shadow-[0_2px_4px_rgba(0,0,0,.35)] ${isBad ? "opacity-60 grayscale" : ""}`} />
+                      )}
+                      {isBad && (
+                        <>
+                          <span className="zg-wiggle absolute inset-[5%] rounded-[22%]" style={{ boxShadow: "0 0 0 3px #E63946" }} aria-hidden="true" />
+                          <span
+                            className="absolute right-[4%] top-[4%] flex h-[34%] w-[34%] items-center justify-center rounded-full text-[60%] font-bold leading-none text-white"
+                            style={{ background: "#E63946" }}
+                            aria-hidden="true"
+                          >
+                            !
+                          </span>
+                        </>
+                      )}
                       {m === CROSS && <CrossIcon className="h-[62%] w-[62%] drop-shadow-[0_1px_1px_rgba(60,40,20,.18)]" />}
                       {isHint && (
                         <span className="absolute inset-[6%] rounded-full" style={{ boxShadow: `0 0 0 2px ${L.gold}` }} aria-hidden="true" />

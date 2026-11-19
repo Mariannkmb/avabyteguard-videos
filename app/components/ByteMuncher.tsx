@@ -1603,7 +1603,7 @@ export function NameEntry({
 /* ================= AVA ================= */
 export function Ava({ className = "" }: { className?: string }) {
   return (
-    <svg viewBox="0 0 200 230" className={className} role="img" aria-label="AVA, the AvaByteGuard mascot, smiling and waving">
+    <svg viewBox="0 0 200 230" className={className} role="img" aria-label="AVA, the AvaByteGuard mascot, a red-haired analyst with glasses, smiling and waving">
       <defs>
         <radialGradient id="avaGlow" cx="50%" cy="45%" r="55%">
           <stop offset="0" stopColor="rgba(230,57,70,.35)" />
@@ -1612,7 +1612,7 @@ export function Ava({ className = "" }: { className?: string }) {
       </defs>
       <circle cx="100" cy="105" r="100" fill="url(#avaGlow)" />
       {/* hair back */}
-      <path d="M44 104 Q38 34 100 30 Q162 34 156 104 L160 160 Q146 172 132 156 L68 156 Q54 172 40 160 Z" fill="#2A1A2E" />
+      <path d="M44 104 Q38 34 100 30 Q162 34 156 104 L160 160 Q146 172 132 156 L68 156 Q54 172 40 160 Z" fill="#B8352A" />
       {/* body */}
       <path d="M28 230 Q32 168 100 158 Q168 168 172 230 Z" fill="#10152A" stroke="#2A3354" strokeWidth="2" />
       <path d="M78 160 L100 186 L122 160" fill="none" stroke="#E63946" strokeWidth="4" strokeLinejoin="round" />
@@ -1627,12 +1627,13 @@ export function Ava({ className = "" }: { className?: string }) {
       {/* neck + face */}
       <rect x="88" y="134" width="24" height="26" rx="9" fill="#E3AE88" />
       <ellipse cx="100" cy="98" rx="47" ry="51" fill="#F2C29C" />
-      {/* bangs with red streak */}
-      <path d="M52 94 Q52 42 100 40 Q150 42 150 96 Q132 72 112 64 Q92 82 52 94 Z" fill="#2A1A2E" />
-      <path d="M112 64 Q128 70 142 84 Q134 58 112 48 Z" fill="#E63946" />
+      {/* red bangs with a copper highlight */}
+      <path d="M52 94 Q52 42 100 40 Q150 42 150 96 Q132 72 112 64 Q92 82 52 94 Z" fill="#C8412F" />
+      <path d="M112 64 Q128 70 142 84 Q134 58 112 48 Z" fill="#F07A4F" />
+      <path d="M62 84 Q72 60 96 54" fill="none" stroke="#E2603F" strokeWidth="4" strokeLinecap="round" opacity=".7" />
       {/* brows */}
-      <path d="M70 84 Q80 78 90 83" fill="none" stroke="#2A1A2E" strokeWidth="3.5" strokeLinecap="round" />
-      <path d="M110 83 Q120 78 130 84" fill="none" stroke="#2A1A2E" strokeWidth="3.5" strokeLinecap="round" />
+      <path d="M70 82 Q80 76 90 81" fill="none" stroke="#8E2A22" strokeWidth="3.5" strokeLinecap="round" />
+      <path d="M110 81 Q120 76 130 82" fill="none" stroke="#8E2A22" strokeWidth="3.5" strokeLinecap="round" />
       {/* eyes */}
       <ellipse cx="80" cy="99" rx="9" ry="11" fill="#fff" />
       <ellipse cx="120" cy="99" rx="9" ry="11" fill="#fff" />
@@ -1640,15 +1641,20 @@ export function Ava({ className = "" }: { className?: string }) {
       <circle cx="121" cy="101" r="6" fill="#2B1B3A" />
       <circle cx="83" cy="98" r="2" fill="#fff" />
       <circle cx="123" cy="98" r="2" fill="#fff" />
+      {/* glasses */}
+      <rect x="65" y="86" width="30" height="27" rx="11" fill="rgba(160,215,255,.14)" stroke="#1F2440" strokeWidth="3.5" />
+      <rect x="105" y="86" width="30" height="27" rx="11" fill="rgba(160,215,255,.14)" stroke="#1F2440" strokeWidth="3.5" />
+      <path d="M95 97 Q100 93 105 97" fill="none" stroke="#1F2440" strokeWidth="3" strokeLinecap="round" />
+      <path d="M65 95 L54 93 M135 95 L146 93" stroke="#1F2440" strokeWidth="3" strokeLinecap="round" />
       {/* cheeks + smile */}
       <ellipse cx="68" cy="116" rx="7" ry="4" fill="#F28B8B" opacity=".55" />
       <ellipse cx="132" cy="116" rx="7" ry="4" fill="#F28B8B" opacity=".55" />
       <path d="M84 120 Q100 136 116 120 Q100 128 84 120 Z" fill="#9B2335" />
       {/* headset */}
-      <path d="M50 98 Q50 36 100 34 Q150 36 150 98" fill="none" stroke="#5B86D9" strokeWidth="6" />
-      <rect x="42" y="88" width="14" height="26" rx="6" fill="#5B86D9" />
-      <rect x="144" y="88" width="14" height="26" rx="6" fill="#5B86D9" />
-      <path d="M50 112 Q56 132 80 132" fill="none" stroke="#5B86D9" strokeWidth="3" />
+      <path d="M50 98 Q50 36 100 34 Q150 36 150 98" fill="none" stroke="#1E9AA6" strokeWidth="6" />
+      <rect x="42" y="88" width="14" height="26" rx="6" fill="#1E9AA6" />
+      <rect x="144" y="88" width="14" height="26" rx="6" fill="#1E9AA6" />
+      <path d="M50 112 Q56 132 80 132" fill="none" stroke="#1E9AA6" strokeWidth="3" />
       <circle cx="82" cy="132" r="4" fill="#E63946" />
       {/* sparkles */}
       <path d="M28 52 l3 8 l8 3 l-8 3 l-3 8 l-3 -8 l-8 -3 l8 -3 Z" fill="#FFD166" />
