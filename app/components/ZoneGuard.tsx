@@ -159,6 +159,7 @@ const SIZES = [
   { n: 9, label: "Master" },
 ];
 const HINTS = 3;
+const DOUBLE_TAP_MS = 400;
 // points = size bonus, doubled when you finish instantly and fading to nothing at par time; each hint costs 25%
 const BASE: Record<number, number> = { 5: 100, 6: 200, 7: 400, 8: 700, 9: 1000 };
 const PAR: Record<number, number> = { 5: 60, 6: 120, 7: 240, 8: 420, 9: 600 }; // seconds
@@ -294,8 +295,8 @@ const sfx = {
 };
 
 /* ---------- Ava's lines ---------- */
-const HELLO = "Hi, I'm Ava! Each color is a network zone. Tap a tile once for ✕, twice to place a sensor.";
-const NUDGE = "Tip: tap a tile twice to place a sensor. One tap is only an ✕.";
+const HELLO = "Hi, I'm Ava! Each color is a network zone. Tap a tile for ✕, double-tap it to place a sensor.";
+const NUDGE = "Tip: double-tap a tile to place a sensor. One tap is only an ✕.";
 const ON_SENSOR = ["Sensor online!", "Nice spot!", "That zone feels safer already.", "Keep going, analyst!", "Ooh, good placement."];
 const ON_CROSS = ["Good thinking. ✕ means no sensor here.", "Ruling cells out is half the job.", "Drag your finger to mark many ✕ at once."];
 const ON_REMOVE = ["Rethinking is part of security.", "No worries, try another spot."];
@@ -404,6 +405,8 @@ function ZoneGuardModal({
   };
   // finger/mouse drag: once the pointer leaves the first tile, every empty tile it crosses gets an ✕
   const drag = useRef<{ r: number; c: number; prev: number; active: boolean } | null>(null);
+  // last tap, to tell a double tap (sensor) from a later second tap (clear)
+  const lastTap = useRef<{ r: number; c: number; t: number } | null>(null);
   const dragOverRef = useRef<(x: number, y: number) => void>(() => {});
 
   useEffect(() => {
@@ -500,7 +503,12 @@ function ZoneGuardModal({
     drag.current = { r, c, prev, active: false };
     if (hinted.has(`${r},${c}`)) return;
     const next = marksRef.current.map((row) => [...row]);
-    next[r][c] = (next[r][c] + 1) % 3; // empty → ✕ → sensor → empty
+    const now = clock();
+    const lt = lastTap.current;
+    const isDouble = !!lt && lt.r === r && lt.c === c && now - lt.t < DOUBLE_TAP_MS;
+    // double tap → sensor; a single tap marks ✕, and tapping a marked tile again later clears it
+    next[r][c] = isDouble ? SENSOR : next[r][c] === EMPTY ? CROSS : EMPTY;
+    lastTap.current = isDouble ? null : { r, c, t: now };
     if (next[r][c] === CROSS) {
       sfx.cross();
       const crosses = next.flat().filter((m) => m === CROSS).length;
@@ -696,7 +704,7 @@ function ZoneGuardModal({
           className="flex flex-col items-center gap-3 rounded-2xl p-3 sm:p-4"
           style={{ background: L.panel, border: `1px solid ${L.line}`, boxShadow: "0 20px 50px -30px rgba(60,40,20,.25)" }}
         >
-          {/* always-visible how-to: what one and two taps do */}
+          {/* always-visible how-to: what a tap and a double tap do */}
           <div className="flex flex-wrap items-center justify-center gap-x-4 gap-y-1.5 text-[13px]" style={{ color: L.fg }}>
             <span className="flex items-center gap-1.5">
               <span className="flex h-6 w-6 items-center justify-center" style={tile(ZONE_COLORS[0], 6)}>
@@ -709,11 +717,11 @@ function ZoneGuardModal({
               <span className="flex h-6 w-6 items-center justify-center" style={tile(ZONE_COLORS[1], 6)}>
                 <SensorIcon className="h-[72%] w-[72%]" spin={false} />
               </span>
-              <b>2 taps</b>
+              <b>Double tap</b>
               <span style={{ color: L.muted }}>place a sensor</span>
             </span>
             <span className="hidden items-center gap-1.5 sm:flex" style={{ color: L.muted }}>
-              3 taps clear · swipe to ✕ a row
+              tap again to clear · swipe to ✕ a row
             </span>
           </div>
 
