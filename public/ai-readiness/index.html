@@ -179,6 +179,11 @@ h1,h2,h3,h4{text-wrap:balance;margin:0}
 .cases li{display:flex;flex-wrap:wrap;gap:4px 10px;font-size:14px;line-height:1.4}
 .cases li b{font:600 13px var(--mono)}
 .cases li span{color:var(--muted)}
+.cases .atl{display:flex;flex-wrap:wrap;gap:4px 12px;align-items:baseline;border-top:1px dashed var(--line);padding-top:6px;font-size:12.5px;line-height:1.4;color:var(--muted)}
+.cases .atl>span{font:600 11px var(--mono);letter-spacing:.06em}
+.cases .atl a{color:inherit;text-decoration:none;border-bottom:1px dotted currentColor}
+.cases .atl a:hover{color:var(--ink,inherit)}
+.cases .atl code{font:11px var(--mono);opacity:.75}
 .nav{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap}
 
 /* Report */
@@ -347,6 +352,20 @@ const D = [
   board:{en:"How long from first access to containment, and what does each hour cost us?",es:"¿Cuánto tarda en pasar del primer acceso a la contención y cuánto nos cuesta cada hora?"}}
 ];
 
+const ATL={
+"02:10":[["AML.T0004","Search Application Repositories","Búsqueda en repositorios de apps"],["AML.T0116","Autonomous Reconnaissance","Reconocimiento autónomo"]],
+"02:45":[["AML.T0049","Exploit Public-Facing Application","Explotación de app expuesta"],["AML.T0025","Exfiltration via Cyber Means","Exfiltración de datos"]],
+"03:20":[["AML.T0055","Unsecured Credentials","Credenciales sin proteger"],["AML.T0012","Valid Accounts","Cuentas válidas"]],
+"03:55":[["AML.T0075","Enterprise Resource Discovery","Descubrimiento de recursos"],["AML.T0012","Valid Accounts","Cuentas válidas"]],
+"04:30":[["AML.T0091.000","Application Access Token","Token de acceso de aplicación"],["AML.T0053","AI Agent Tool Invocation","Uso de herramientas del agente"]],
+"05:10":[["AML.T0118.001","Direct Agent Communication","Comunicación directa entre agentes"],["AML.T0048.000","Financial Harm","Daño financiero"]],
+"07:15":[["AML.T0051.001","Indirect Prompt Injection","Inyección de prompt indirecta"],["AML.T0086","Exfiltration via AI Agent Tool Invocation","Exfiltración vía herramientas del agente"]],
+"09:15":[["AML.T0088","Generate Deepfakes","Generación de deepfakes"],["AML.T0052.001","Deepfake-Assisted Phishing","Phishing con deepfake"]],
+"10:40":[["AML.T0088","Generate Deepfakes","Generación de deepfakes"],["AML.T0073","Impersonation","Suplantación"]],
+"11:55":[["AML.T0124","Autonomous Attack Orchestration","Orquestación autónoma del ataque"],["AML.T0117","Autonomous Attack-Path Adaptation","Adaptación autónoma de la ruta de ataque"]],
+"13:10":[["AML.T0017.001","Autonomous Exploit Development","Desarrollo autónomo de exploits"],["AML.T0049","Exploit Public-Facing Application","Explotación de app expuesta"]],
+"14:30":[["AML.T0010.005","Supply Chain Compromise: AI Agent Tool","Cadena de suministro: herramienta de agente"],["AML.T0109","AI Supply Chain Rug Pull","Rug pull en la cadena de suministro de IA"]],
+"16:00":[["AML.T0048","External Harms","Daños externos"]]};
 const Q = [
  {d:"api",time:"02:10",s:{en:"The attacker's AI tool analyses the code of the customer app your company launched in 2021. It finds the API address the app used to show each customer's details. Nobody uses the app any more, but does that address still answer?",es:"La herramienta de IA del atacante analiza el código de la app para clientes que tu empresa lanzó en 2021. Encuentra la dirección de la API que la app usaba para mostrar los datos de cada cliente. La app ya no se usa, pero ¿esa dirección sigue respondiendo?"},
   c:[["Optus",2022,"Forgotten API with no authentication: data of about 10 million customers","API olvidada y sin autenticación: datos de unos 10 millones de clientes"]],
@@ -731,7 +750,7 @@ function question(){
       <div class="qleft"><p class="scenario">${q.s[lang]}</p>${fb}</div>
       <div class="qright"><div class="opts" role="group">${ord.map((oi,k)=>{const o=q.o[oi];return `<button type="button" class="opt${a===oi?" sel":a!=null?" dim":""}" data-oi="${oi}"><span class="k">${k+1}</span><span>${lang==="en"?o[1]:o[2]}</span></button>`}).join("")}</div>
       ${NA_OK.includes(q.time)?`<button type="button" class="na${a===-1?" sel":a!=null?" dim":""}" id="na">${t().na}</button>`:""}</div>
-      ${q.c?`<div class="cases"><div class="meta">${q.ch?q.ch[lang]:t().cases}</div><ul>${q.c.map(c=>`<li><b>${c[0]} · ${c[1]}</b><span>${lang==="en"?c[2]:c[3]}</span></li>`).join("")}</ul></div>`:""}
+      ${q.c?`<div class="cases"><div class="meta">${q.ch?q.ch[lang]:t().cases}</div><ul>${q.c.map(c=>`<li><b>${c[0]} · ${c[1]}</b><span>${lang==="en"?c[2]:c[3]}</span></li>`).join("")}</ul>${ATL[q.time]?`<div class="atl"><span>MITRE ATLAS</span>${ATL[q.time].map(a=>`<a href="https://atlas.mitre.org/techniques/${a[0]}" target="_blank" rel="noopener">${lang==="en"?a[1]:a[2]} <code>${a[0]}</code></a>`).join("")}</div>`:""}</div>`:""}
       <div class="nav"><button class="btn ghost" id="back" type="button">← ${t().back}</button>
       ${a!=null?`<span class="navr">${reviewing&&step<Q.length-1?`<button class="btn ghost" id="toreport" type="button">${t().toreport}</button>`:""}<button class="btn" id="next" type="button">${step===Q.length-1?t().finish:t().next} →</button></span>`:""}</div>
     </div></article>`;
