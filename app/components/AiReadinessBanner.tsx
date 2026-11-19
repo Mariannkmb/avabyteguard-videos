@@ -139,12 +139,13 @@ export default function AiReadinessBanner() {
           </span>
           <h3 className="text-4xl font-black uppercase leading-none sm:text-5xl lg:text-6xl">Who&apos;s knocking?</h3>
           <p className="max-w-xl text-base text-gray-200 sm:text-lg">
-            14 scenarios from one night shift when the attacker is an AI. See where you stand on agent identity, APIs,
-            cloud, deepfakes and the AI supply chain, and leave with a 12-month roadmap.
+            You lead security. It&apos;s 02:10 and the first alert comes in. Across one day of AI-driven attacks based on
+            real cases, see where you stand on agent identity, APIs, cloud, deepfakes and the AI supply chain, and leave
+            with a 12-month roadmap.
           </p>
           <div className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-2">
             <span className="rounded-full bg-[#F2B14C] px-6 py-3 font-bold text-[#1B1606] transition group-hover:translate-x-1">
-              Start the shift →
+              See the first alert →
             </span>
             <span className="text-xs text-gray-400">About 5 minutes · No sign-up · Nothing leaves your browser</span>
           </div>
