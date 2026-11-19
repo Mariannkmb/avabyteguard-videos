@@ -1,3 +1,5 @@
+"use client";
+
 // Shared top navigation for every AvaByteGuard page.
 // The AI readiness page (public/ai-readiness/index.html) carries a static copy of this bar: keep both in sync.
 
