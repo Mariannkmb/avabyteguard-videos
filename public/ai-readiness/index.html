@@ -251,8 +251,14 @@ h1,h2,h3,h4{text-wrap:balance;margin:0}
 .contact a.btn{text-decoration:none;display:inline-block}
 .mail{user-select:all;color:var(--ink);font-weight:600}
 @media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
-.phead,.annex,.pfoot{display:none}
-@media print{
+.phead,.annex,.pfoot,.pnote{display:none}
+html.pmeasure #app{width:186mm;max-width:none;padding:0}
+
+</style>
+</head>
+<body>
+
+<style id="pcss" media="print">
  @page{size:A4;margin:12mm 12mm 14mm}
  *{-webkit-print-color-adjust:exact;print-color-adjust:exact}
  .bar,.actions,.lang,.sitenav,.tlhint,.report>.kicker{display:none!important}
@@ -264,9 +270,13 @@ h1,h2,h3,h4{text-wrap:balance;margin:0}
  .phead .pd{font:11px var(--mono);color:#ccc}
  .tlb{pointer-events:none}
  .prio,.col,.panel,.road,.tailor,.annex tr,.bars{break-inside:avoid}
- .psplit{break-before:page}
- .annex{display:block;break-before:page}
- .rsplit{break-before:page}
+ .annex{display:block}
+ .annex thead{display:table-header-group}
+ .sec{margin-top:18px}
+ h3{break-after:avoid}
+ .summary{margin-top:10px}
+ .report h2{font-size:44px;margin:0}
+ .timeline,.legend{break-inside:avoid}
  .prio{padding:12px 14px;gap:10px}
  .prio p{font-size:12px;line-height:1.45;margin:3px 0}
  .prio .yours{padding:6px 10px;margin:4px 0}
@@ -281,11 +291,14 @@ h1,h2,h3,h4{text-wrap:balance;margin:0}
  .annex td.r i{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:6px;vertical-align:middle}
  .pfoot{display:block;margin-top:16px;padding:10px 14px;border:1px solid var(--line);border-radius:10px;font-size:12px}
  .pfoot b{color:#E7000B}
-}
+ .wrap{max-width:none;padding:0}
+ .pg{break-after:page;break-inside:avoid;overflow:hidden}
+ .pg:last-child{break-after:auto}
+ .pg>.sec:first-child,.pg>h3:first-child{margin-top:0}
+ .report>.note{display:none}
+ .pnote{display:block;font-size:11px;margin-top:16px}
+ .keep.also{margin-top:12px}
 </style>
-</head>
-<body>
-
 
 <nav class="sitenav" aria-label="AvaByteGuard">
   <a class="sn-brand" href="https://www.avabyteguard.com/">AVA BYTEGUARD</a>
@@ -810,20 +823,18 @@ function pick(oi){answers[step]=oi;render();const n=document.getElementById("nex
 
 const today=()=>new Date().toLocaleDateString(lang==="es"?"es-ES":"en-GB",{day:"numeric",month:"long",year:"numeric"});
 const SITE="https://www.avabyteguard.com/ai-readiness";
-function summaryText(sc,total,prio,rows,alsoExp){
-  const L=t().levels[levelIdx(total)],q=lang==="es"?["«","»"]:["“","”"];
-  const cnt=[3,2,1,0].map(k=>Q.filter((_,i)=>val(i)===k).length),na=answers.filter(a=>a===-1).length;
-  const bar=p=>p==null?"··········":"■".repeat(Math.round(p/10))+"□".repeat(10-Math.round(p/10));
-  let s=`${t().h1.toUpperCase()} · ${t().report}\n${t().sub} · ${today()}\n\n`;
-  s+=`${t().overall}: ${total}/100 · ${t().lvlw} ${levelIdx(total)+1}/5, ${L[0]}\n${L[1]}\n\n`;
-  s+=`${t().alerts}: `+[3,2,1,0].map((k,j)=>`${cnt[j]} ${t().out[k]}`).join(" · ")+(na?` · ${na} ${t().nachip}`:"")+"\n\n";
-  s+=`${t().bydomain.toUpperCase()}\n`+sc.map(x=>`${bar(x.pct)} ${x.pct==null?t().nachip:String(x.pct).padStart(3," ")}  ${x.d.name[lang]}`).join("\n");
-  s+=`\n\n${t().prio.toUpperCase()}\n`+(prio.length?prio.map((p,i)=>`${i+1}. ${p.d.name[lang]} · ${p.pct}/100 · ${t().tiers[tier(p.pct)]}\n   ${t().first}: ${plan(p)[0]}\n   ${t().boardq}: ${q[0]}${p.d.board[lang]}${q[1]}`).join("\n\n"):`${t().noprio}. ${t().noprioTxt}`);
-  if(alsoExp.length)s+=`\n\n${t().alsoexp}: ${alsoExp.map(x=>x.d.name[lang]).join(", ")}.`;
-  s+=`\n\n${t().road.toUpperCase()}\n`+[t().now,t().nextc,t().later].map((h,k)=>{const it=rows.map(p=>plan(p)[k]);const u=[...new Set(it)];return `${h}\n`+u.map(x=>`- ${x}`).join("\n");}).join("\n\n");
-  return s+`\n\n${t().tryit}: ${SITE}${lang==="es"?"#es":""}\n${t().foot}`;
+/* each .pg is one A4 page: shrink a page only if its content would overflow */
+const PAGE_H=271*96/25.4-6;
+function fitPages(){
+  const css=document.getElementById("pcss"),pgs=[...document.querySelectorAll(".pg")];
+  pgs.forEach(g=>g.style.zoom="");
+  css.media="all";document.documentElement.classList.add("pmeasure");
+  const z=pgs.map(g=>Math.min(1,PAGE_H/g.getBoundingClientRect().height));
+  css.media="print";document.documentElement.classList.remove("pmeasure");
+  pgs.forEach((g,i)=>{if(z[i]<1)g.style.zoom=z[i].toFixed(3);});
 }
-
+addEventListener("beforeprint",()=>{if(document.querySelector(".pg"))fitPages();});
+addEventListener("afterprint",()=>document.querySelectorAll(".pg").forEach(g=>g.style.zoom=""));
 function annex(){
   return `<section class="annex"><h3>${t().annex}</h3><table><thead><tr><th>${t().atime}</th><th>${t().aalert}</th><th>${t().adom}</th><th>${t().ares}</th><th>MITRE ATLAS</th></tr></thead><tbody>${Q.map((q,i)=>{const v=val(i);return `<tr><td class="m">${q.time}</td><td>${TTL[q.time]?TTL[q.time][lang==="en"?0:1]:""}</td><td>${dom(q.d).name[lang]}</td><td class="r"><i style="background:${v==null?"var(--line)":OUTC[v]}"></i>${v==null?t().nachip:t().out[v]}</td><td class="m">${(ATL[q.time]||[]).map(a=>a[0]).join("<br>")||"—"}</td></tr>`;}).join("")}</tbody></table></section>`;
 }
@@ -834,7 +845,7 @@ function results(){
   const color=p=>p<34?"var(--bad)":p<50?"var(--warn)":p<84?"var(--slow)":"var(--ok)";
   const topLevel=window.self===window.top;
   app.innerHTML=`<section class="report">
-    <div class="phead"><span class="pb">AVA BYTEGUARD</span><span class="pt">WHO'S KNOCKING? · AI READINESS</span><span class="pd">${today()}</span></div>
+    <div class="pg"><div class="phead"><span class="pb">AVA BYTEGUARD</span><span class="pt">WHO'S KNOCKING? · AI READINESS</span><span class="pd">${today()}</span></div>
     <div class="kicker">${t().h1}</div><h2>${t().report}</h2>
     <div class="summary">
       <div class="panel"><div class="meta" style="text-align:center">${t().overall}</div>${gauge(total,color(total))}
@@ -848,7 +859,7 @@ function results(){
     <div class="sec"><div class="kicker">${t().bydomain}</div>
       <div class="bars">${sc.map(s=>`<div class="b">${icon(s.d.id)}<span>${s.d.name[lang]}</span><span class="rail"><i style="width:${s.pct||0}%;background:${color(s.pct||0)}"></i></span><span>${s.pct==null?"N/A":s.pct}</span></div>`).join("")}</div>
     </div>
-    <div class="sec psplit"><h3>${t().prio}</h3>
+    </div><div class="pg"><div class="sec psplit"><h3>${t().prio}</h3>
       ${prio.length?"":`<div class="prio allok"><div class="c"><h4>${t().noprio}</h4><p>${t().noprioTxt}</p></div></div>`}
       ${prio.map((p,i)=>`<div class="prio">${icon(p.d.id)}<div class="c">
         <div class="top"><span class="rank">0${i+1}</span><h4>${p.d.name[lang]}</h4><span class="meta">${p.pct}/100</span><span class="tier t${tier(p.pct)}">${t().tiers[tier(p.pct)]}</span></div>
@@ -857,22 +868,18 @@ function results(){
         <div class="fw">${p.d.fw.map(f=>`<span>${f}</span>`).join("")}</div></div></div>`).join("")}
     </div>
     ${alsoExp.length?`<p class="keep also"><b>${t().alsoexp}:</b> ${alsoExp.map(x=>x.d.name[lang]).join(", ")}.</p>`:""}
-    <div class="sec rsplit"><h3>${t().road}</h3>
+    </div><div class="pg"><div class="sec rsplit"><h3>${t().road}</h3>
       <div class="tailor"><p>${prio.length?t().tailored:t().tailoredok}</p><div>${rows.map(p=>`<span class="tier t${tier(p.pct)}">${p.d.name[lang]} · ${t().tiers[tier(p.pct)]}</span>`).join("")}</div></div>
       <div class="road">${[t().now,t().nextc,t().later].map((h,k)=>`<div class="col"><h5><i></i>${h}</h5><ul>${(()=>{const it=rows.map(p=>({t:plan(p)[k],n:p.d.name[lang]}));const same=it.length>1&&it.every(x=>x.t===it[0].t);return same?`<li>${it[0].t}</li>`:it.map(x=>`<li>${x.t}<small>${x.n}</small></li>`).join("");})()}</ul></div>`).join("")}</div>
       ${strong.length?`<p class="keep"><b>${t().keep}:</b> ${strong.map(s=>s.d.name[lang]).join(", ")}.</p>`:""}
-    </div>
+    </div><p class="note pnote">${t().foot}</p></div>
     <div class="sec actions">
-      <div class="row"><button class="btn lamp" id="copy" type="button">${t().copy}</button>
-        ${topLevel?`<button class="btn ghost" id="pdf" type="button">${t().pdf}</button>`:""}
+      <div class="row">${topLevel?`<button class="btn lamp" id="pdf" type="button">${t().pdf}</button>`:""}
         <button class="btn ghost" id="again" type="button">${t().retake}</button><span class="copied" id="cmsg" aria-live="polite"></span></div>
-      <textarea id="ctext" readonly hidden aria-label="${t().copy}" style="width:100%;min-height:180px;font:13px var(--mono);background:var(--surface);color:var(--ink);border:1px solid var(--line);border-radius:10px;padding:10px"></textarea>
       <div class="contact"><p>${t().talk}</p><div class="row"><a class="btn" href="${CONTACT}" target="_blank" rel="noopener">${t().talkl} →</a><span class="meta">${t().ormail} <b class="mail">${EMAIL}</b></span></div></div>
     </div>
-    <p class="note" style="margin-top:24px">${t().foot}</p>${annex()}<div class="pfoot"><b>${t().tryit}:</b> ${SITE.replace("https://www.","")}${lang==="es"?"#es":""}</div></section>`;
-  const txt=summaryText(sc,total,prio,rows,alsoExp);
-  document.getElementById("copy").onclick=()=>{const msg=document.getElementById("cmsg"),ta=document.getElementById("ctext");const fail=()=>{ta.hidden=false;ta.value=txt;ta.focus();ta.select();msg.textContent=t().copyfail;};try{navigator.clipboard.writeText(txt).then(()=>{msg.textContent=t().copied;},fail);}catch(e){fail();}};
-  const p=document.getElementById("pdf");if(p)p.onclick=()=>{const old=document.title;document.title=`${t().fileT} - ${new Date().toISOString().slice(0,10)}`;const back=()=>{document.title=old;window.removeEventListener("afterprint",back);};window.addEventListener("afterprint",back);window.print();setTimeout(back,60000);};
+    <p class="note" style="margin-top:24px">${t().foot}</p><div class="pg">${annex()}<div class="pfoot"><b>${t().tryit}:</b> ${SITE.replace("https://www.","")}${lang==="es"?"#es":""}</div></div></section>`;
+  const p=document.getElementById("pdf");if(p)p.onclick=()=>{const old=document.title;document.title=`${t().fileT} - ${new Date().toISOString().slice(0,10)}`;const back=()=>{document.title=old;window.removeEventListener("afterprint",back);};window.addEventListener("afterprint",back);fitPages();window.print();setTimeout(back,60000);};
   app.querySelectorAll(".tlb").forEach(b=>b.onclick=()=>{reviewing=true;step=+b.dataset.i;render();window.scrollTo({top:0});});
   document.getElementById("again").onclick=()=>{answers=[];reviewing=false;step=-1;shuffleOrders();render();window.scrollTo({top:0});};
 }
