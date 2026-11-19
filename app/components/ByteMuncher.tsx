@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Chakra_Petch, JetBrains_Mono, Silkscreen } from "next/font/google";
+import SiteNav from "./SiteNav";
 
 export const display = Silkscreen({ weight: ["400", "700"], subsets: ["latin"] });
 export const body = Chakra_Petch({ weight: ["400", "500", "600"], subsets: ["latin"] });
@@ -1600,6 +1601,17 @@ export function NameEntry({
   );
 }
 
+/* close a game and land where the site bar link points (same page: scroll there once the page can scroll again) */
+export function leaveTo(href: string, close: () => void) {
+  close();
+  const hash = href.includes("#") ? href.split("#")[1] : "";
+  if (href !== "/" && !hash) return;
+  setTimeout(() => {
+    if (hash) document.getElementById(hash)?.scrollIntoView({ behavior: "smooth" });
+    else window.scrollTo({ top: 0, behavior: "smooth" });
+  }, 60);
+}
+
 /* ================= AVA ================= */
 export function Ava({ className = "" }: { className?: string }) {
   return (
@@ -1901,6 +1913,10 @@ function GameModal({
       aria-modal="true"
       aria-label="Patch-Man"
     >
+      {/* site bar stays on top so players can go back to the rest of the site */}
+      <div className="sticky top-0 z-30 bg-black" style={{ fontFamily: "Arial, Helvetica, sans-serif" }}>
+        <SiteNav current="games" onNavigate={(href) => leaveTo(href, onClose)} />
+      </div>
       <style>{`@keyframes bmToast{0%{opacity:0;transform:translateY(6px)}10%,75%{opacity:1;transform:none}100%{opacity:0}}.bm-toast{animation:bmToast 2.4s ease forwards}@keyframes bmPop{0%{transform:scale(1)}30%{transform:scale(1.25)}100%{transform:scale(1)}}.bm-pop{animation:bmPop .5s ease}.bm-board{width:min(100%,600px,66vh)}@media (pointer:coarse){.bm-board{width:min(100%,64vh)}}@media (prefers-reduced-motion:reduce){.bm-toast{animation:none}}`}</style>
       <div className="mx-auto flex max-w-6xl flex-col gap-4 px-4 py-5 sm:py-8">
         <header className="flex flex-wrap items-end justify-between gap-3">

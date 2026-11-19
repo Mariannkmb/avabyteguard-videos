@@ -12,10 +12,10 @@ const links: { id: Page; href: string; label: string }[] = [
   { id: "about", href: "/about", label: "About" },
 ];
 
-export default function SiteNav({ current }: { current?: Page }) {
+export default function SiteNav({ current, onNavigate }: { current?: Page; onNavigate?: (href: string) => void }) {
   return (
     <nav className="relative z-10 flex flex-wrap items-center gap-x-8 gap-y-3 px-8 py-6">
-      <Link href="/" className="text-3xl font-black text-red-600">
+      <Link href="/" className="text-3xl font-black text-red-600" onClick={() => onNavigate?.("/")}>
         AVA BYTEGUARD
       </Link>
       {/* The links wrap as one group, so on phones they sit together on a second line */}
@@ -28,11 +28,11 @@ export default function SiteNav({ current }: { current?: Page }) {
           (promo ? "font-semibold text-[#F2B14C]" : isCurrent ? "font-semibold text-white" : "text-gray-300");
         // The readiness check is a static page in /public, so it needs a full page load, not client routing.
         return promo ? (
-          <a key={l.id} href={l.href} aria-current={isCurrent ? "page" : undefined} className={className}>
+          <a key={l.id} href={l.href} aria-current={isCurrent ? "page" : undefined} className={className} onClick={() => onNavigate?.(l.href)}>
             {l.label}
           </a>
         ) : (
-          <Link key={l.id} href={l.href} aria-current={isCurrent ? "page" : undefined} className={className}>
+          <Link key={l.id} href={l.href} aria-current={isCurrent ? "page" : undefined} className={className} onClick={() => onNavigate?.(l.href)}>
             {l.label}
           </Link>
         );

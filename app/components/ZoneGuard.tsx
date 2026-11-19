@@ -1,7 +1,8 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { Ava, C, LIGHT, Leaderboard, NameEntry, TEST_MODE, body, display, mono, useLeaderboard, type Board, type Row } from "./ByteMuncher";
+import SiteNav from "./SiteNav";
+import { Ava, C, LIGHT, leaveTo, Leaderboard, NameEntry, TEST_MODE, body, display, mono, useLeaderboard, type Board, type Row } from "./ByteMuncher";
 
 /* ================= puzzle generator ================= */
 // N x N grid split into N network zones. Place one IDS sensor per row, column and zone;
@@ -634,6 +635,10 @@ function ZoneGuardModal({
       aria-modal="true"
       aria-label="Zone Guard"
     >
+      {/* site bar stays on top so players can go back to the rest of the site */}
+      <div className="sticky top-0 z-30 bg-black" style={{ fontFamily: "Arial, Helvetica, sans-serif" }}>
+        <SiteNav current="games" onNavigate={(href) => leaveTo(href, onClose)} />
+      </div>
       <style>{`@keyframes zgSpin{to{transform:rotate(360deg)}}.zg-spin{animation:zgSpin 3s linear infinite}
 @keyframes zgPop{0%{transform:scale(.3);opacity:0}60%{transform:scale(1.15);opacity:1}100%{transform:scale(1)}}.zg-pop{animation:zgPop .32s ease-out}
 @keyframes zgBounce{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}.zg-bounce{animation:zgBounce 1.2s ease-in-out infinite}
